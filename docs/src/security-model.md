@@ -1,3 +1,130 @@
 # Security Model
 
-> This page is a placeholder. Content is being authored in AAASM-1196.
+This page documents the security posture of AI Agent Assembly for enterprise security and compliance teams.
+
+---
+
+## IronClaw Five-Layer Defense
+
+AI Agent Assembly organizes its security controls into five named layers. Each layer is independently deployable and adds defense-in-depth:
+
+| Layer | Name | What it does |
+|---|---|---|
+| 1 | **Boundary** | Network perimeter: sidecar proxy (`aa-proxy`) enforces egress policy; eBPF sensor (`aa-ebpf`) catches kernel-level bypass attempts |
+| 2 | **Identity** | Agent and user authentication: JWT-based agent identity issued by the gateway; operator authentication via SAML 2.0 / OIDC SSO |
+| 3 | **Policy** | Runtime governance: YAML/JSON policy rules evaluated by the gateway policy engine before every agent action |
+| 4 | **Vault** | Secret and credential management: AES-256-GCM encryption at rest for stored secrets; Ed25519-signed tokens for inter-component trust |
+| 5 | **Telemetry** | Audit and observability: append-only event log for every agent action; Slack/webhook connectors for real-time alerting on policy violations |
+
+---
+
+## STRIDE Threat Model
+
+The table below maps each STRIDE category to the five primary components of AI Agent Assembly and the mitigating controls in place.
+
+| Component | **S**poofing | **T**ampering | **R**epudiation | **I**nfo Disclosure | **D**enial of Service | **E**levation of Privilege |
+|---|---|---|---|---|---|---|
+| **Language SDK** | Ed25519-signed agent tokens prevent impersonation | SDK integrity verified by Cargo/npm/PyPI package hash | Every call logged with agent ID and timestamp | SDK communicates over mTLS; secrets never logged | Rate limiting enforced by gateway budget tracker | Policy engine enforces agent scope; no ambient privilege |
+| **Gateway (aa-gateway)** | JWT validation on all gRPC connections | Input validation on all RPCs; schema-enforced policy rules | Append-only audit log with tamper-evident signatures | Internal-only gRPC endpoint; never exposed directly | Per-team budget caps block runaway agent spending | RBAC on all administrative API endpoints |
+| **Sidecar Proxy (aa-proxy)** | Per-host CA pinning prevents MitM spoofing by agents | TLS termination with certificate validation on every upstream | All intercepted requests logged by proxy before forwarding | Proxy does not log request/response bodies by default | Connection pool limits per agent; circuit breaker on upstream failure | Proxy runs as unprivileged user; no write access to host filesystem |
+| **eBPF Sensor (aa-ebpf)** | eBPF program loaded only by privileged system service | BPF verifier rejects unsafe programs at load time | Kernel event timestamps are monotonic; cannot be retroactively altered | eBPF only reads SSL buffers; no access to unrelated memory regions | eBPF programs have bounded execution; verifier enforces loop limits | Loaded via CAP_BPF only; capability is dropped after program load |
+| **REST API (aa-api)** | SAML/OIDC token validation on every request | OpenAPI schema validation rejects malformed inputs | All mutating API calls logged with actor identity | HTTPS-only; HSTS enforced; no sensitive data in query strings | Rate limiting per IP and per tenant; DDoS mitigation via upstream load balancer | Tenant isolation enforced at API layer; cross-tenant access rejected |
+
+> **Traceability**: Each STRIDE row maps to a specific IronClaw layer control. For configuration paths and runbook references, consult the security runbook in the `agent-assembly` repository.
+
+---
+
+## Cryptographic Primitives
+
+| Primitive | Algorithm | Key length | Usage | Rotation cadence (NIST SP 800-57) |
+|---|---|---|---|---|
+| Agent signing key | Ed25519 | 256-bit | Signs agent identity tokens issued by the gateway | Every 90 days or on compromise |
+| Vault encryption | AES-256-GCM | 256-bit | Encrypts secrets and credentials at rest | Every 1 year or on compromise |
+| Callback / webhook signature | HMAC-SHA256 | 256-bit | Signs outbound webhook payloads so receivers can verify authenticity | Every 90 days or on rotation of webhook secret |
+| TLS (transport) | TLS 1.3 | ECDHE-256 | All inter-component and external communication | Certificate: every 90 days (auto-renewed) |
+
+All keys are generated using a CSPRNG. No MD5, SHA-1, or DES primitives are used anywhere in the stack.
+
+---
+
+## Authentication Flow
+
+### SDK → Gateway (gRPC)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant SDK as Language SDK
+  participant GW as aa-gateway
+
+  SDK->>GW: RegisterAgent(agent_id, public_key, metadata)
+  GW-->>SDK: AgentToken (Ed25519-signed JWT, TTL=1h)
+  Note over SDK,GW: All subsequent calls carry the AgentToken in gRPC metadata
+
+  SDK->>GW: CheckPolicy(event) [+ AgentToken]
+  GW->>GW: Verify Ed25519 signature, check TTL
+  GW-->>SDK: PolicyDecision
+```
+
+### Operator → Dashboard / CLI (SAML/OIDC)
+
+```mermaid
+sequenceDiagram
+  autonumber
+  participant Ops as Operator
+  participant CLI as aasm CLI / Dashboard
+  participant API as aa-api
+  participant IdP as Enterprise IdP (SAML/OIDC)
+
+  Ops->>CLI: aasm login --sso
+  CLI->>IdP: Redirect to IdP with SAML AuthnRequest
+  IdP-->>Ops: Login prompt (MFA enforced by IdP)
+  Ops->>IdP: Credentials + MFA
+  IdP-->>CLI: SAML Assertion / OIDC id_token
+  CLI->>API: Exchange assertion for session token
+  API-->>CLI: Signed session token (TTL=8h)
+  CLI-->>Ops: Login successful
+```
+
+---
+
+## Secrets Management
+
+- Secrets (LLM API keys, webhook tokens) are stored encrypted with AES-256-GCM.
+- The encryption key is derived from a master secret held in the SaaS control plane's hardware security module (HSM).
+- Secrets are never written to disk in plaintext.
+- Secrets are never logged, even at `DEBUG` level.
+- Secret rotation is supported via the `aasm secret rotate` command, which re-encrypts in place without service restart.
+
+---
+
+## Audit Log
+
+- Every agent action (policy check, event record, budget debit) produces an immutable log entry.
+- Log entries are signed with HMAC-SHA256 using a log-signing key.
+- Logs are append-only; no delete or update API exists.
+- Log retention: configurable per tenant (default: 90 days).
+- Logs are exportable in JSON or CEF format for SIEM integration.
+
+---
+
+## Compliance Posture
+
+| Standard | Status |
+|---|---|
+| SOC 2 Type II | In preparation (target: Q3 2026) |
+| ISO 27001 | Roadmap (post-SOC 2) |
+| GDPR | Architecture is GDPR-compatible; DPA available on request |
+| CCPA | Covered under SaaS Data Processing Agreement |
+
+---
+
+## Related Documentation
+
+- [Why AI Agent Assembly?](comparison.md) — competitive positioning and governance differentiation
+- [Cloud Deployment](cloud-deployment.md) — SSO configuration, SCIM provisioning
+- [Open Core Boundary](open-core-boundary.md) — which security features are OSS vs enterprise
+
+---
+
+*Last reviewed: 2026-05-10 — AI Agent Assembly Team*
