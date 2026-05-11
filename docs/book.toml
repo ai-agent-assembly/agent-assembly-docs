@@ -1,0 +1,12 @@
+[book]
+title = "AI Agent Assembly — Enterprise Documentation"
+description = "Enterprise evaluator documentation for AI Agent Assembly: governance-native runtime for AI agents."
+authors = ["AI Agent Assembly Team"]
+language = "en"
+src = "src"
+
+[output.html]
+default-theme = "rust"
+preferred-dark-theme = "navy"
+git-repository-url = "https://github.com/AI-agent-assembly/agent-assembly-docs"
+edit-url-template = "https://github.com/AI-agent-assembly/agent-assembly-docs/edit/main/docs/{path}"
