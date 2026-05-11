@@ -6,6 +6,80 @@ AI Agent Assembly is a SaaS-only product. Choose the tier that matches your team
 
 ---
 
+## LangChain: Zero-to-Governance in Under 5 Minutes
+
+This end-to-end example takes a LangChain agent from zero to fully governed in under 5 minutes using any SaaS tier.
+
+**Prerequisites:** Python 3.12+, an OpenAI API key, and a Pro (or higher) workspace.
+
+### Step 1 — Install packages
+
+```bash
+pip install agent-assembly langchain langchain-openai langchain-core
+```
+
+### Step 2 — Set credentials
+
+```bash
+export AAA_WORKSPACE_ID="<your-workspace-id>"   # from Settings → Workspace
+export AAA_API_KEY="<your-api-key>"             # from Settings → API Keys
+export OPENAI_API_KEY="<your-openai-key>"
+```
+
+### Step 3 — Instrument your LangChain agent
+
+```python
+import os
+from agent_assembly import AgentAssembly
+from langchain_openai import ChatOpenAI
+from langchain.agents import AgentExecutor, create_openai_tools_agent
+from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import tool
+
+aaa = AgentAssembly()
+
+@tool
+def summarise_text(text: str) -> str:
+    """Return a one-sentence summary of the provided text."""
+    return text[:200] + "..." if len(text) > 200 else text
+
+@aaa.agent(name="langchain-research-agent")
+def run_agent(question: str) -> str:
+    llm = ChatOpenAI(model="gpt-4o", temperature=0)
+    tools = [summarise_text]
+
+    prompt = ChatPromptTemplate.from_messages([
+        ("system", "You are a helpful research assistant."),
+        ("human", "{input}"),
+        MessagesPlaceholder(variable_name="agent_scratchpad"),
+    ])
+
+    agent = create_openai_tools_agent(llm, tools, prompt)
+    executor = AgentExecutor(agent=agent, tools=tools, verbose=False)
+    result = executor.invoke({"input": question})
+    return result["output"]
+
+if __name__ == "__main__":
+    answer = run_agent("What is AI Agent Assembly and why does it matter for enterprise governance?")
+    print(answer)
+```
+
+The `@aaa.agent` decorator registers `langchain-research-agent` with the gateway, wraps every invocation with pre-execution policy evaluation, and emits an audit event for every LangChain call — without modifying LangChain internals.
+
+### Step 4 — Activate a starter policy
+
+In the console, open **Policies → New Policy** and apply the starter template (allow all, audit all). This takes under 30 seconds. Every subsequent call from `langchain-research-agent` is now governed, audited, and visible in the **Audit Log** panel.
+
+### What governance looks like at runtime
+
+```
+[AAASM] Agent registered: langchain-research-agent (workspace: ws-a1b2...)
+[AAASM] Policy check: ALLOW  event=llm_call  agent=langchain-research-agent
+[AAASM] Audit event written: id=evt_01j...  latency=2ms
+```
+
+---
+
 ## Pro Tier
 
 **Signup**: self-serve at `https://app.agent-assembly.io/signup`
