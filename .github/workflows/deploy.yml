@@ -3,12 +3,19 @@ name: Build and Deploy Docs
 on:
   push:
     branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/deploy.yml"
   pull_request:
     branches: [main]
+    paths:
+      - "docs/**"
+      - ".github/workflows/deploy.yml"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     name: Build mdBook
