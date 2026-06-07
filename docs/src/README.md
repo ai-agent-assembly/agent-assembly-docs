@@ -8,7 +8,7 @@ AI Agent Assembly is a governance-native runtime for AI agents. It enforces poli
 
 This site is for **enterprise evaluators, security teams, and operators** assessing AI Agent Assembly for production adoption.
 
-If you are a developer looking to contribute or integrate at the code level, see the [open-source documentation](https://github.com/AI-agent-assembly/agent-assembly/tree/master/docs).
+If you are a developer looking to contribute or integrate at the code level, see the [open-source documentation](https://github.com/ai-agent-assembly/agent-assembly/tree/master/docs).
 
 ## What you will find here
 
