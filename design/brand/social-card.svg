@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-label="AI Agent Assembly Documentation">
+  <!-- PLACEHOLDER social card (1200x630) — replace with final artwork. Tokens: design/doc-tokens.md -->
+  <rect width="1200" height="630" fill="#0e0e0e"/>
+  <rect x="90" y="250" width="110" height="110" rx="24" fill="#6366f1"/>
+  <path d="M118 338 L145 272 L172 338 M127 316 H163" fill="none" stroke="#ffffff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="240" y="320" font-family="Inter, system-ui, sans-serif" font-size="72" font-weight="700" fill="#ededed">AI Agent Assembly</text>
+  <text x="240" y="392" font-family="Inter, system-ui, sans-serif" font-size="40" font-weight="500" fill="#a3a3a3">Documentation</text>
+</svg>
