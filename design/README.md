@@ -5,7 +5,7 @@ Assembly doc surface (the central hub + each SDK/component doc site).
 
 - **[`doc-tokens.md`](./doc-tokens.md)** — every design token (brand accent, neutrals,
   typography, measure, admonition colors) with light/dark values and their dashboard source.
-- **[`brand/`](./brand)** — logo, favicon, social card (placeholders; replace with final art).
+- **[`brand/`](./brand)** — official artwork: `icon.png` (A-mark, no text), `favicon.png`, `logo.png` (full lockup), `social-card.png` (1200×630).
 - **[`snippets/`](./snippets)** — copy-verbatim style files, one per generator:
   | Generator | Repos | Files |
   |---|---|---|

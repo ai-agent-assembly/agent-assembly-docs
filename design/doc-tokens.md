@@ -23,6 +23,18 @@ value here → update each repo's snippet → all sites stay in sync.
 
 Use the accent **only** for links, active nav, focus rings, and primary buttons — never for decoration.
 
+### Brand gradient (logo / hero accents only)
+
+The product mark is a three-stop gradient (matching the three interception layers — SDK / proxy / eBPF), sampled from the official logo:
+
+| Stop | Hex |
+|---|---|
+| purple (top) | `#9455ef` |
+| blue (mid) | `#465ce3` |
+| cyan (bottom) | `#209de5` |
+
+`linear-gradient(160deg, #9455ef 0%, #465ce3 50%, #209de5 100%)` — use for the logo, hero banners, and large decorative accents. **Do not** use the gradient for body links or running text; the solid `accent` above is the UI accent (it sits in the middle of this gradient and matches the dashboard).
+
 ## Neutrals
 
 | Token | Light | Dark | Source |
@@ -73,4 +85,15 @@ named themes — set `default-theme` to the branded light and `preferred-dark-th
 | node-sdk, inner-document | Docusaurus | [`snippets/docusaurus-custom.css`](./snippets/docusaurus-custom.css) |
 | go-sdk | Hugo / Hextra | [`snippets/hextra-custom.css`](./snippets/hextra-custom.css) |
 
-Brand assets (logo, favicon, social card) live in [`brand/`](./brand) — **placeholders**; replace with final artwork when available.
+## Brand assets
+
+Official artwork lives in [`brand/`](./brand):
+
+| File | Size | Use |
+|---|---|---|
+| [`brand/icon.png`](./brand/icon.png) | 512² | product icon (A-mark, no text) — navbar logo + favicon source |
+| [`brand/favicon.png`](./brand/favicon.png) | 256² | site favicon |
+| [`brand/logo.png`](./brand/logo.png) | 1254² | full lockup (mark + wordmark) — README / hero |
+| [`brand/social-card.png`](./brand/social-card.png) | 1200×630 | Open Graph / social preview |
+
+The icon and logo sit on the brand's dark canvas; in light-mode navbars use `icon.png` as-is, or supply a light-background variant per site if needed.
