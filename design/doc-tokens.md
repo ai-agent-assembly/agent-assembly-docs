@@ -91,7 +91,7 @@ Official artwork lives in [`brand/`](./brand):
 
 | File | Size | Use |
 |---|---|---|
-| [`brand/icon.png`](./brand/icon.png) | 512² | product icon (A-mark, no text) — navbar logo + favicon source |
+| [`brand/icon.png`](./brand/icon.png) | 512² | product icon — full A-mark + the three interception marks (shield/cube/lock), no text — navbar logo + favicon source |
 | [`brand/favicon.png`](./brand/favicon.png) | 256² | site favicon |
 | [`brand/logo.png`](./brand/logo.png) | 1254² | full lockup (mark + wordmark) — README / hero |
 | [`brand/social-card.png`](./brand/social-card.png) | 1200×630 | Open Graph / social preview |
