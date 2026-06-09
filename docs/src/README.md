@@ -21,6 +21,17 @@ If you are a developer looking to contribute or integrate at the code level, see
 | [Cloud Deployment](cloud-deployment.md) | Tenant provisioning, SSO, billing, and region selection |
 | [Policy Reference](policy-reference.md) | Every YAML policy field documented with type, default, and examples |
 
+## SDKs & components
+
+This hub is the central entry point for AI Agent Assembly documentation. Each language SDK ships its own documentation site — use the table below to route to the one you need.
+
+| Component | Documentation |
+|---|---|
+| Core (this hub / monorepo) | [agent-assembly-docs](https://ai-agent-assembly.github.io/agent-assembly-docs/) · [monorepo docs](https://github.com/ai-agent-assembly/agent-assembly/tree/master/docs) |
+| Python SDK | <https://ai-agent-assembly.github.io/python-sdk/> |
+| Node SDK | <https://ai-agent-assembly.github.io/node-sdk/> |
+| Go SDK | <https://ai-agent-assembly.github.io/go-sdk/> |
+
 ## The three-layer interception model
 
 AI Agent Assembly enforces governance through three independently deployable layers:
@@ -33,4 +44,4 @@ All three layers report to the gateway, which evaluates policy and tracks per-te
 
 ---
 
-*Last reviewed: 2026-05-10 — AI Agent Assembly Team*
+*Last reviewed: 2026-06-09 — AI Agent Assembly Team*
