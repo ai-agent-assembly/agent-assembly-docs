@@ -1,8 +1,12 @@
-# AI Agent Assembly — Enterprise Documentation
+# AI Agent Assembly — enterprise documentation
 
-Welcome to the AI Agent Assembly enterprise documentation site.
+AI Agent Assembly is a governance layer for AI agents. It sits between your agents and the outside world and does three things:
 
-AI Agent Assembly is a governance-native runtime for AI agents. It enforces policy, tracks costs, and intercepts unsafe actions across your entire AI agent fleet — without changing your existing agent code.
+- **Enforces policy** — decides, before each action runs, whether an agent is allowed to call a tool, reach a domain, or spend more budget.
+- **Tracks cost** — meters token and dollar spend per team and blocks agents that exceed their budget.
+- **Intercepts unsafe actions** — catches risky calls (and bypass attempts) at the SDK, network, and kernel levels.
+
+It works across your whole fleet of agents and does not require you to rewrite your existing agent code.
 
 ## Who this documentation is for
 
