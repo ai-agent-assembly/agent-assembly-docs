@@ -3,7 +3,6 @@ name: Build and Deploy Docs
 on:
   push:
     branches: [main]
-    tags: ["v*"]
     paths:
       - "docs/**"
       - ".github/workflows/deploy.yml"
@@ -12,6 +11,20 @@ on:
     paths:
       - "docs/**"
       - ".github/workflows/deploy.yml"
+  # Release-driven frozen cut. The hub has no version of its own — it tracks the
+  # COORDINATED PRODUCT release line. When the product publishes a release, the
+  # agent-assembly repo fans out a repository_dispatch to the doc consumers
+  # (same event python-sdk / node-sdk consume); we cut a frozen snapshot for the
+  # product tag carried in the payload.
+  repository_dispatch:
+    types: [agent-assembly-release-published]
+  # Manual fallback: cut a frozen snapshot for an explicit product tag.
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: "Product release tag to freeze (e.g. v0.1.0 or v0.1.0-alpha.5)"
+        required: true
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -32,25 +45,44 @@ jobs:
       - name: Build
         run: cd docs && mdbook build
 
-      # Resolve the version subpath this run publishes into.
-      # main push  -> "latest"
-      # tag push   -> the tag name without the leading "v" (e.g. v0.1.0 -> 0.1.0)
-      - name: Resolve version slug
+      # Resolve which version subpath this run publishes into, and on a release
+      # cut, which release CHANNEL the product tag maps to.
+      #   main push                 -> slug "latest"          (channel latest)
+      #   release dispatch/manual   -> slug = product tag     (stable | pre-release)
+      # Channel from tag: ^v\d+\.\d+\.\d+$ -> stable; a -suffix -> pre-release.
+      - name: Resolve version slug and channel
         id: slug
+        env:
+          RELEASE_TAG: ${{ github.event.client_payload.release_tag || github.event.inputs.release_tag }}
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            slug="${GITHUB_REF_NAME#v}"
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "repository_dispatch" || "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            tag="${RELEASE_TAG:-}"
+            if [[ -z "${tag}" ]]; then
+              echo "::error::release_tag missing from dispatch payload" >&2
+              exit 1
+            fi
+            # Use the product tag verbatim as the version id/label/subpath.
+            slug="${tag}"
+            if [[ "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              channel="stable"
+            else
+              channel="pre-release"
+            fi
           else
             slug="latest"
+            channel="latest"
           fi
           echo "slug=${slug}" >> "$GITHUB_OUTPUT"
+          echo "channel=${channel}" >> "$GITHUB_OUTPUT"
+          echo "Resolved slug=${slug} channel=${channel}"
 
-      # Tag-only: preserve previously published version subpaths on a release
-      # tag build. The Pages artifact deploy replaces the whole site, so prior
-      # frozen versions must be re-staged from the live site before we add the
-      # new one. This step is the per-version aggregation step at release time.
-      - name: Preserve existing published versions (release tag only)
-        if: startsWith(github.ref, 'refs/tags/')
+      # A release cut must preserve previously published version subpaths, since
+      # the Pages artifact deploy replaces the whole site. Re-stage prior frozen
+      # versions from the live site before adding the new one. This is the
+      # per-version aggregation step at product-release time.
+      - name: Preserve existing published versions (release cut only)
+        if: github.event_name == 'repository_dispatch' || github.event_name == 'workflow_dispatch'
         run: |
           set -euo pipefail
           mkdir -p site
@@ -62,13 +94,14 @@ jobs:
             echo "No existing published site found (first release) — continuing"
 
       # Assemble the deployable site root:
-      #   <root>/index.html        -> redirect to latest/
-      #   <root>/versions.json     -> version manifest read by the theme dropdown
+      #   <root>/index.html        -> redirect through stable -> pre-release -> latest
+      #   <root>/versions.json     -> channel manifest read by the theme dropdown + banner
       #   <root>/<slug>/           -> the freshly built book
       - name: Stage site
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
         env:
           SLUG: ${{ steps.slug.outputs.slug }}
+          CHANNEL: ${{ steps.slug.outputs.channel }}
         run: |
           set -euo pipefail
           mkdir -p site
@@ -78,16 +111,31 @@ jobs:
           mkdir -p "site/${SLUG}"
           cp -r docs/book/. "site/${SLUG}/"
 
-          # Root redirect -> latest/
+          # Root redirect (resolves channel via versions.json client-side).
           cp docs/site-root/index.html site/index.html
 
-          # Rebuild versions.json: always include latest, plus every version subpath
-          # currently staged (existing tags + this build's slug).
-          python3 - "$SLUG" <<'PY'
-          import json, os, sys
+          # Rebuild versions.json with channel metadata. "latest" is always the
+          # main channel. A release cut assigns the freshly built slug to its
+          # channel (stable | pre-release); prior cuts whose channel we can no
+          # longer infer from the live manifest are carried as archived snapshots,
+          # except we always re-derive stable/pre-release from the tag shape so the
+          # newest stable and newest pre-release stay promoted to channels.
+          python3 - "$SLUG" "$CHANNEL" <<'PY'
+          import json, os, re, sys
+
           slug = sys.argv[1]
+          channel = sys.argv[2]
           site = "site"
-          # Discover version subpaths already staged (dirs holding an index.html, excluding root).
+
+          STABLE_RE = re.compile(r"^v\d+\.\d+\.\d+$")
+          PRE_RE = re.compile(r"^v\d+\.\d+\.\d+-")
+
+          def label_for(vid):
+              if vid == "latest":
+                  return "latest (main)"
+              return vid
+
+          # Discover version subpaths already staged (dirs holding an index.html).
           found = set()
           for name in os.listdir(site):
               p = os.path.join(site, name)
@@ -96,22 +144,69 @@ jobs:
           found.add(slug)
           found.add("latest")
 
-          def entry(vid):
-              return {"id": vid, "label": vid, "path": f"{vid}/"}
+          # Preserve any channel assignments recorded in the existing manifest so a
+          # main-only "latest" rebuild does not lose the promoted stable/pre-release.
+          prior = {}
+          manifest_path = os.path.join(site, "versions.json")
+          if os.path.isfile(manifest_path):
+              try:
+                  with open(manifest_path) as f:
+                      for v in json.load(f).get("versions", []):
+                          if v.get("channel"):
+                              prior[v["id"]] = v["channel"]
+              except Exception:
+                  prior = {}
+          # This run's slug takes its freshly resolved channel.
+          if channel in ("latest", "stable", "pre-release"):
+              prior[slug] = channel
 
-          # latest first, then frozen versions newest-ish (reverse sort) for stable ordering.
-          versions = [entry("latest")]
-          for vid in sorted((v for v in found if v != "latest"), reverse=True):
-              versions.append(entry(vid))
+          # Among all known stable / pre-release tags, only the newest of each is a
+          # live channel; older ones drop to archived.
+          def vsort_key(vid):
+              # Sort tags newest-first by their numeric/identifier components.
+              core = vid.lstrip("v")
+              return [int(x) if x.isdigit() else x for x in re.split(r"[.\-]", core)]
 
-          with open(os.path.join(site, "versions.json"), "w") as f:
+          stable_tags = sorted((v for v in found if STABLE_RE.match(v)), key=vsort_key, reverse=True)
+          pre_tags = sorted((v for v in found if PRE_RE.match(v)), key=vsort_key, reverse=True)
+          newest_stable = stable_tags[0] if stable_tags else None
+          newest_pre = pre_tags[0] if pre_tags else None
+
+          def channel_of(vid):
+              if vid == "latest":
+                  return "latest"
+              if vid == newest_stable:
+                  return "stable"
+              if vid == newest_pre:
+                  return "pre-release"
+              return None  # archived
+
+          channels = []
+          archived = []
+          for vid in found:
+              ch = channel_of(vid)
+              entry = {"id": vid, "label": label_for(vid), "path": f"{vid}/"}
+              if ch:
+                  entry["channel"] = ch
+                  channels.append((ch, vid, entry))
+              else:
+                  archived.append((vid, entry))
+
+          # Channels ordered latest, pre-release, stable; archived newest-first.
+          order = {"latest": 0, "pre-release": 1, "stable": 2}
+          channels.sort(key=lambda t: order.get(t[0], 99))
+          archived.sort(key=lambda t: vsort_key(t[0]), reverse=True)
+
+          versions = [e for _, _, e in channels] + [e for _, e in archived]
+
+          with open(manifest_path, "w") as f:
               json.dump({"versions": versions}, f, indent=2)
               f.write("\n")
-          print("versions.json:", versions)
+          print("versions.json:", json.dumps(versions))
           PY
 
       - name: Upload artifact
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: site
@@ -119,7 +214,7 @@ jobs:
   deploy:
     name: Deploy to GitHub Pages
     needs: build
-    if: github.event_name == 'push'
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     permissions:
       pages: write
