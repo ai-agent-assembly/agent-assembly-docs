@@ -40,13 +40,13 @@ This hub is the central entry point for AI Agent Assembly documentation. To inst
 
 ## The three-layer interception model
 
-AI Agent Assembly enforces governance through three independently deployable layers:
+AI Agent Assembly enforces governance through three layers. You can deploy them independently, and each one catches what the layer above it might miss:
 
-1. **SDK layer (in-process)** — language SDKs wrap your agent calls and enforce pre-execution allow/deny before any network egress occurs.
-2. **Sidecar proxy (`aa-proxy`)** — intercepts outbound HTTPS via MitM with a per-host CA, catching anything the SDK misses without code changes.
-3. **eBPF sensor (`aa-ebpf`)** — kernel-level hooks watching SSL libraries and process syscalls; catches bypass attempts at the OS level (Linux only).
+1. **SDK layer (in-process)** — the language SDK wraps your agent calls and applies allow/deny decisions before any network request leaves the process. Fastest path, but requires you to adopt the SDK.
+2. **Sidecar proxy (`aa-proxy`)** — intercepts outbound HTTPS using a per-host CA, so it can govern agents that do not use the SDK. No code changes required.
+3. **eBPF sensor (`aa-ebpf`)** — kernel-level hooks that watch SSL libraries and process syscalls to catch bypass attempts at the OS level. Linux only.
 
-All three layers report to the gateway, which evaluates policy and tracks per-team budgets.
+All three layers report to the **gateway**, which evaluates policy and tracks per-team budgets.
 
 ---
 
