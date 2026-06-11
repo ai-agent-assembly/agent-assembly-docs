@@ -1,6 +1,9 @@
-# Open Core Boundary
+# Open core boundary
 
-AI Agent Assembly follows an **open-core** model. The interception infrastructure, policy engine, SDK shims, and CLI are Apache-2.0 open source. Enterprise features — SSO, SCIM, advanced audit, multi-region data residency — are covered by the AAA-Commercial license and available on paid SaaS tiers.
+AI Agent Assembly follows an **open-core** model. The line is simple:
+
+- **Enforcement is open source.** The interception layers, policy engine, SDK shims, and CLI are Apache-2.0. Anyone can read, audit, and contribute to them.
+- **Enterprise operations are commercial.** Features like SSO, SCIM, advanced audit, and multi-region data residency are covered by the AAA-Commercial license and available on paid SaaS tiers.
 
 > **Self-hosted deployment is not available.** Regardless of license, AI Agent Assembly is a SaaS-only product. The Apache-2.0 crates are open source for inspection, contribution, and SDK integration — not for self-hosted deployment. There is no bring-your-own-infrastructure path. See [Cloud Deployment](cloud-deployment.md) and [Quick Start (SaaS)](quickstart-saas.md) for the available onboarding paths.
 
