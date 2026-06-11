@@ -1,14 +1,16 @@
 # Why AI Agent Assembly?
 
-This page helps enterprise evaluators understand where AI Agent Assembly fits relative to other tools in the AI governance and observability space. All competitor data cited from vendor public documentation as of 2026-05-05.
+This page helps enterprise evaluators see where AI Agent Assembly fits next to other tools in the AI governance and observability space. All competitor data is taken from each vendor's public documentation as of 2026-05-05.
+
+In short: most tools in this space **observe** what an agent did after the fact. AI Agent Assembly is built to **enforce** policy before an action runs. The sections below show where that difference matters, and where competitors are ahead.
 
 ---
 
-## Feature Matrix
+## Feature matrix
 
-Rows are capability axes. Columns: AI Agent Assembly (AAASM), Langfuse, Helicone, Opik, Pillar Security.
+Each row is a capability. The columns are AI Agent Assembly (AAASM), Langfuse, Helicone, Opik, and Pillar Security.
 
-Legend: ✓ = full support · partial = limited / gated behind tier · ✗ = not available · n/a = not applicable to product category
+Legend: ✓ = full support · partial = limited or gated behind a paid tier · ✗ = not available · n/a = not applicable to the product category.
 
 | Capability | AAASM | Langfuse | Helicone | Opik | Pillar Security |
 |---|---|---|---|---|---|
