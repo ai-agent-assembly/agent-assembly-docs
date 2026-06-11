@@ -29,7 +29,7 @@ Pick the page that matches what you are trying to do.
 
 ## SDKs & components
 
-This hub is the central entry point for AI Agent Assembly documentation. Each language SDK ships its own documentation site — use the table below to route to the one you need.
+This hub is the central entry point for AI Agent Assembly documentation. To instrument your agents, you install the SDK for your language — each one ships its own documentation site. Use the table below to go to the SDK that matches your codebase: Python, Node/TypeScript, or Go.
 
 | Component | Documentation |
 |---|---|
