@@ -1,0 +1,153 @@
+# compatibility.toml — source of truth for the core <-> SDK compatibility matrix
+# ==============================================================================
+#
+# This manifest drives docs/src/compatibility.md. A human edits THIS file at each
+# coordinated release; the generated tables in compatibility.md are produced from
+# it by docs/scripts/generate_compatibility.py (run in CI with --check to fail on
+# drift). Never hand-edit the content between the BEGIN/END GENERATED markers in
+# the Markdown page — edit this manifest and regenerate.
+#
+# ACCURACY CONTRACT
+# -----------------
+# Every cell below traces to a verifiable source (a published tag, a registry
+# release, or a committed git pin). Where an exact core<->SDK pairing cannot be
+# authoritatively determined, the cell is the sentinel "—" (U+2014) and the
+# reason is recorded in a `notes` field. We prefer fewer accurate rows over a
+# fuller fabricated matrix.
+#
+# AXIS / SHAPE
+# ------------
+# The matrix is a 1:1 core-release <-> SDK-release pairing per row. The schema is
+# deliberately string-typed per SDK column so a future release can widen a single
+# cell into a RANGE (e.g. ">=v0.0.1-alpha.1, <v0.0.2") without a schema change —
+# the generator renders whatever string each cell holds.
+#
+# DATA AS VERIFIED 2026-06-11 (sources in the per-row `notes` and the report):
+#   * Core published tags: v0.0.1-alpha.1 .. v0.0.1-alpha.5 (GitHub tags/releases).
+#       https://github.com/ai-agent-assembly/agent-assembly/tags
+#   * No final v0.0.1 core release exists yet (the core repo's own matrix lists a
+#     v0.0.1 row aspirationally; we only record PUBLISHED tags here).
+#   * All three SDKs currently pin aa-core/aa-proto/aa-sdk-client at the SAME git
+#     SHA 9cf8a033d39c870ba46a0929b62261d125a00a09 (merge of PR #958, 2026-06-05),
+#     which is 587 commits AHEAD of v0.0.1-alpha.5 and behind NO published tag.
+#     => The SDKs build against an UNRELEASED post-alpha.5 core revision; we cannot
+#        honestly map them to a published core tag, so the "tested @ <sha>" row
+#        below records the real pin and the alpha rows mark the SDK cell per what
+#        is actually known.
+
+# ------------------------------------------------------------------------------
+# [[release]] — one row per core release (newest first is the rendering order).
+#   core    : core release tag (the `aa-runtime` / monorepo tag).
+#   status  : one of current | supported | previous | deprecated | eol
+#   proto   : the wire-protocol contract this core speaks (aa-proto package dir).
+#   sdks    : the SDK release that speaks this core's protocol, per language.
+#             Use the published SDK tag where a pairing is authoritative; use "—"
+#             where it is not (and explain in notes).
+#   notes   : free-form provenance / caveat, rendered as a trailing column.
+# ------------------------------------------------------------------------------
+
+[[release]]
+core = "tested @ 9cf8a033 (post-v0.0.1-alpha.5, unreleased)"
+status = "current"
+proto = "protocol/v1"
+notes = "All three SDKs pin aa-core/aa-proto/aa-sdk-client at git SHA 9cf8a033 (PR #958, 2026-06-05; 587 commits ahead of v0.0.1-alpha.5). This is the ONLY authoritatively-verified core<->SDK pairing: it is the exact revision every current SDK is built against. It is not a published core tag."
+[release.sdks]
+python = "PyPI 0.0.1a5 / git v0.0.2"
+node = "npm @alpha 0.0.1-alpha.5"
+go = "v0.0.1-alpha.4"
+
+[[release]]
+core = "v0.0.1-alpha.5"
+status = "supported"
+proto = "protocol/v1"
+notes = "Latest published core tag. No SDK tag pins exactly this commit; current SDKs pin a later SHA (see the row above). SDK cells left as — to avoid asserting an unverified tag<->tag pairing."
+[release.sdks]
+python = "—"
+node = "—"
+go = "—"
+
+[[release]]
+core = "v0.0.1-alpha.4"
+status = "supported"
+proto = "protocol/v1"
+notes = "Published core tag. No SDK tag authoritatively pins this exact commit."
+[release.sdks]
+python = "—"
+node = "—"
+go = "—"
+
+[[release]]
+core = "v0.0.1-alpha.3"
+status = "supported"
+proto = "protocol/v1"
+notes = "Published core tag. SDKs of the same version string (python/node/go v0.0.1-alpha.3) were released around this line per the core repo's own matrix, but at their tag time the SDK FFI crates did not yet pin a resolvable aa-core rev, so an exact commit<->commit pairing is NOT verifiable. Left as — per the accuracy contract."
+[release.sdks]
+python = "—"
+node = "—"
+go = "—"
+
+[[release]]
+core = "v0.0.1-alpha.2"
+status = "previous"
+proto = "protocol/v1"
+notes = "Published core tag. Same-version-string SDK tags exist (python/node/go v0.0.1-alpha.2) but no resolvable pin; left as —."
+[release.sdks]
+python = "—"
+node = "—"
+go = "—"
+
+[[release]]
+core = "v0.0.1-alpha.1"
+status = "previous"
+proto = "protocol/v1"
+notes = "Earliest published core tag. Same-version-string SDK tags exist (python/node/go v0.0.1-alpha.1) but no resolvable pin; left as —."
+[release.sdks]
+python = "—"
+node = "—"
+go = "—"
+
+# ------------------------------------------------------------------------------
+# [requirements] — per-SDK runtime requirement + install one-liner.
+#   runtime : the language-runtime version constraint, copied verbatim from the
+#             SDK's own manifest (the authoritative source named in `source`).
+#   install : a copy-pasteable install command for the published package.
+#   source  : where `runtime` was read from (for the maintainer's audit trail).
+# ------------------------------------------------------------------------------
+
+[requirements.python]
+label = "Python SDK"
+runtime = "Python >=3.12,<4.0"
+install = "pip install agent-assembly --pre"
+source = "python-sdk pyproject.toml [project].requires-python"
+
+[requirements.node]
+label = "Node SDK"
+runtime = "Node.js >=18.18.0 (pnpm >=10 to build from source)"
+install = "npm install @agent-assembly/sdk@alpha"
+source = "node-sdk package.json [engines]"
+
+[requirements.go]
+label = "Go SDK"
+runtime = "Go >=1.26.0"
+install = "go get github.com/ai-agent-assembly/go-sdk@latest"
+source = "go-sdk go.mod (go directive)"
+
+# ------------------------------------------------------------------------------
+# [badges] — slugs for the live "latest published version" badge strip.
+# Registered third-party slugs keep their original registry casing.
+#   * PyPI distribution name and npm package name are case/scope sensitive.
+#   * GitHub org/repo resolve case-insensitively; canonical casing is lowercase
+#     `ai-agent-assembly` (org policy).
+# ------------------------------------------------------------------------------
+
+[badges]
+# Core: GitHub release badge, including pre-releases (latest published = alpha.5).
+core_github_repo = "ai-agent-assembly/agent-assembly"
+# Python: PyPI distribution name (latest published = 0.0.1a5).
+pypi_package = "agent-assembly"
+# Node: npm scoped package; the prerelease line lives under the `alpha` dist-tag.
+npm_package = "@agent-assembly/sdk"
+npm_dist_tag = "alpha"
+# Go: no semantic registry; use the GitHub tag badge (latest tag = alpha.4).
+go_github_repo = "ai-agent-assembly/go-sdk"
+go_module = "github.com/ai-agent-assembly/go-sdk"
