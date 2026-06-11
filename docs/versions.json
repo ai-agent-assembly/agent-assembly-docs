@@ -2,8 +2,9 @@
   "versions": [
     {
       "id": "latest",
-      "label": "latest",
-      "path": "latest/"
+      "label": "latest (main)",
+      "path": "latest/",
+      "channel": "latest"
     }
   ]
 }
