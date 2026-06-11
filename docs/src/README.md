@@ -12,18 +12,20 @@ It works across your whole fleet of agents and does not require you to rewrite y
 
 This site is for **enterprise evaluators, security teams, and operators** assessing AI Agent Assembly for production adoption.
 
-If you are a developer looking to contribute or integrate at the code level, see the [open-source documentation](https://github.com/ai-agent-assembly/agent-assembly/tree/master/docs).
+If you are a developer who wants to contribute or integrate at the code level, see the [open-source documentation](https://github.com/ai-agent-assembly/agent-assembly/tree/master/docs) instead.
 
-## What you will find here
+## Find what you need
 
-| Section | Purpose |
+Pick the page that matches what you are trying to do.
+
+| I want to… | Go to |
 |---|---|
-| [Security Model](security-model.md) | STRIDE threat analysis, IronClaw five-layer defense, cryptographic primitives |
-| [Why AI Agent Assembly?](comparison.md) | Feature comparison against Langfuse, Helicone, Opik, and Pillar Security |
-| [Open Core Boundary](open-core-boundary.md) | What is Apache-2.0 licensed vs. proprietary; the open-core business model |
-| [Quick Start (SaaS)](quickstart-saas.md) | Zero to governed agent in under 5 minutes using the SaaS platform |
-| [Cloud Deployment](cloud-deployment.md) | Tenant provisioning, SSO, billing, and region selection |
-| [Policy Reference](policy-reference.md) | Every YAML policy field documented with type, default, and examples |
+| Govern my first agent in a few minutes | [Quick start (SaaS)](quickstart-saas.md) |
+| Understand the security posture and threat model | [Security model](security-model.md) |
+| Compare AI Agent Assembly to other tools | [Why AI Agent Assembly?](comparison.md) |
+| Know what is open source vs. paid | [Open core boundary](open-core-boundary.md) |
+| Set up SSO, SCIM, regions, and billing | [Cloud deployment](cloud-deployment.md) |
+| Look up a policy field or write a policy | [Policy reference](policy-reference.md) |
 
 ## SDKs & components
 
