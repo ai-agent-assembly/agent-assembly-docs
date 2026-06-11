@@ -25,6 +25,7 @@ superseding stable release removes the pre-release channel automatically.
 from __future__ import annotations
 
 import re
+from collections.abc import Iterable
 from functools import cmp_to_key
 
 STABLE_RE = re.compile(r"^v\d+\.\d+\.\d+$")
@@ -35,7 +36,11 @@ _SEMVER_RE = re.compile(
 )
 
 
-def parse_semver(vid: str) -> tuple[int, int, int, tuple[object, ...]] | None:
+PreId = int | str
+SemVer = tuple[int, int, int, tuple[PreId, ...]]
+
+
+def parse_semver(vid: str) -> SemVer | None:
     """Parse ``vX.Y.Z`` / ``vX.Y.Z-<pre>`` into comparable components.
 
     Returns ``(major, minor, patch, pre_ids)`` where ``pre_ids`` is the empty
@@ -52,13 +57,13 @@ def parse_semver(vid: str) -> tuple[int, int, int, tuple[object, ...]] | None:
     pre = m.group("pre")
     if pre is None:
         return (major, minor, patch, ())
-    ids: list[object] = []
-    for ident in pre.split("."):
-        ids.append(int(ident) if ident.isdigit() else ident)
-    return (major, minor, patch, tuple(ids))
+    ids: tuple[PreId, ...] = tuple(
+        int(ident) if ident.isdigit() else ident for ident in pre.split(".")
+    )
+    return (major, minor, patch, ids)
 
 
-def _cmp_pre(a_pre: tuple[object, ...], b_pre: tuple[object, ...]) -> int:
+def _cmp_pre(a_pre: tuple[PreId, ...], b_pre: tuple[PreId, ...]) -> int:
     """Compare two pre-release identifier tuples (semver §11.4).
 
     An empty tuple means "no pre-release" and ranks HIGHER than any non-empty
@@ -72,17 +77,14 @@ def _cmp_pre(a_pre: tuple[object, ...], b_pre: tuple[object, ...]) -> int:
     if not b_pre:
         return -1
     for x, y in zip(a_pre, b_pre):
-        x_num = isinstance(x, int)
-        y_num = isinstance(y, int)
-        if x_num and y_num:
+        if isinstance(x, int) and isinstance(y, int):
             if x != y:
                 return -1 if x < y else 1
-        elif x_num != y_num:
+        elif isinstance(x, int) != isinstance(y, int):
             # Numeric identifiers always have lower precedence than alphanumeric.
-            return -1 if x_num else 1
-        else:
-            if x != y:
-                return -1 if x < y else 1
+            return -1 if isinstance(x, int) else 1
+        elif isinstance(x, str) and isinstance(y, str) and x != y:
+            return -1 if x < y else 1
     # All shared identifiers equal: the longer set has higher precedence.
     if len(a_pre) != len(b_pre):
         return -1 if len(a_pre) < len(b_pre) else 1
@@ -112,7 +114,7 @@ def semver_cmp(a: str, b: str) -> int:
 _semver_key = cmp_to_key(semver_cmp)
 
 
-def compute_channels(version_ids):
+def compute_channels(version_ids: Iterable[str]) -> dict[str, str | None]:
     """Compute channel assignments from the full set of version ids.
 
     ``version_ids`` is any iterable of subpath ids (``latest`` plus stable /
@@ -137,7 +139,7 @@ def compute_channels(version_ids):
         if semver_cmp(newest_pre, newest_stable) <= 0:
             newest_pre = None
 
-    result = {}
+    result: dict[str, str | None] = {}
     for vid in ids:
         if vid == "latest":
             result[vid] = "latest"
