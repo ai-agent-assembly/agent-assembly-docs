@@ -3,15 +3,18 @@
 This script is the one-way bridge between ``compatibility.toml`` (the human-edited
 source of truth) and ``docs/src/compatibility.md`` (the rendered page). It reads the
 manifest with the standard-library ``tomllib`` (no third-party dependency), renders a
-compact release matrix table, a numbered footnote ("Notes") list, and a per-SDK
+compact release matrix table, a Markdown-footnote ("Notes") definition list, and a per-SDK
 requirements table, and splices each into the Markdown page between its dedicated
 ``BEGIN GENERATED`` / ``END GENERATED`` markers so the hand-written prose and the live
 badge strip are preserved.
 
 The matrix table is intentionally compact: every cell holds only a version, a range,
-the sentinel ``—`` or a short footnote marker (e.g. ``[1]``). The long provenance and
-caveat prose lives in the separate "Notes" footnote list rendered below the table, so
-the table columns stay uniform and no single row balloons.
+the sentinel ``—`` or a short footnote marker. The ``Ref`` markers are emitted as
+real Markdown footnote references (``[^cnN]``) and the "Notes" section as the matching
+footnote definitions (``[^cnN]: text``), so mdBook renders each marker as a clickable
+superscript link that jumps to its note. The long provenance and caveat prose lives in
+those footnote definitions below the table, so the table columns stay uniform and no
+single row balloons.
 
 Run it with no arguments to regenerate the page in place. Run it with ``--check`` to
 verify the committed page already matches the manifest (used by CI to fail on drift).
@@ -40,6 +43,10 @@ NOTES_BEGIN: Final[str] = "<!-- BEGIN GENERATED:notes -->"
 NOTES_END: Final[str] = "<!-- END GENERATED:notes -->"
 REQUIREMENTS_BEGIN: Final[str] = "<!-- BEGIN GENERATED:requirements -->"
 REQUIREMENTS_END: Final[str] = "<!-- END GENERATED:requirements -->"
+
+# Prefix for the Markdown footnote keys shared by the matrix ``Ref`` markers and the
+# "Notes" footnote definitions, e.g. footnote 1 is keyed ``cn1`` (compat-note 1).
+FOOTNOTE_KEY_PREFIX: Final[str] = "cn"
 
 # Order in which per-SDK columns/rows are rendered, with their display headers.
 SDK_KEYS: Final[tuple[str, ...]] = ("python", "node", "go")
@@ -119,7 +126,9 @@ def render_matrix(manifest: dict[str, object], footnotes: dict[str, int]) -> str
     Each row pairs one core release with the SDK release (or range) that speaks its
     wire protocol, plus the protocol contract and lifecycle status. Every cell stays
     short: a version, a range, the sentinel ``—`` or a footnote marker. The trailing
-    ``Ref`` column holds a compact marker (e.g. ``[1]``) into the "Notes" list below.
+    ``Ref`` column holds a Markdown footnote reference (e.g. ``[^cn1]``) that mdBook
+    renders as a clickable superscript link to its definition in the "Notes" list
+    below; rows that share a note (same ``ref``) emit the same key.
     """
     header = (
         "| Core release | Status | Protocol | "
@@ -134,7 +143,7 @@ def render_matrix(manifest: dict[str, object], footnotes: dict[str, int]) -> str
         if not isinstance(sdks, dict):
             raise TypeError("each [release.sdks] entry must be a table")
         ref = str(entry.get("ref", ""))
-        marker = f"[{footnotes[ref]}]" if ref in footnotes else ""
+        marker = f"[^{FOOTNOTE_KEY_PREFIX}{footnotes[ref]}]" if ref in footnotes else ""
         cells = [
             _escape_cell(str(entry.get("core", "—"))),
             _escape_cell(str(entry.get("status", "—"))),
@@ -148,17 +157,20 @@ def render_matrix(manifest: dict[str, object], footnotes: dict[str, int]) -> str
 
 
 def render_notes(ordered_notes: list[str]) -> str:
-    """Render the numbered "Notes" footnote list that sits below the matrix table.
+    """Render the "Notes" section as Markdown footnote definitions.
 
-    Each entry corresponds to a ``Ref`` marker in the matrix; the long provenance
-    and caveat prose lives here so the table itself stays compact.
+    Each definition (``[^cnN]: text``) matches the ``[^cnN]`` footnote reference the
+    matrix emits for the same note, so mdBook renders the matrix markers as clickable
+    superscript links that jump here. The long provenance and caveat prose lives in
+    these definitions so the table itself stays compact. Definitions are separated by
+    blank lines so each is parsed as its own single-paragraph footnote.
     """
     if not ordered_notes:
         return "_No footnotes._"
     lines: list[str] = []
     for index, text in enumerate(ordered_notes, start=1):
-        lines.append(f"{index}. {text}")
-    return "\n".join(lines)
+        lines.append(f"[^{FOOTNOTE_KEY_PREFIX}{index}]: {text}")
+    return "\n\n".join(lines)
 
 
 def render_requirements(manifest: dict[str, object]) -> str:

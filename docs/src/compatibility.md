@@ -16,7 +16,8 @@ not guaranteed across **breaking changes**: those are tracked through the
 `protocol/v2`) marks a breaking boundary, and the affected rows carry a numbered
 footnote explaining the break and which SDK range is required. Long provenance and
 caveat text lives in the **Notes** footnote list below the table, so the table
-itself stays compact — each cell is just a version, a range, `—`, or a `[n]` marker.
+itself stays compact — each cell is just a version, a range, `—`, or a footnote
+marker that links to its note.
 
 ## Latest published versions
 
@@ -35,12 +36,12 @@ maintenance.
 
 | Core release | Status | Protocol | Python SDK | Node SDK | Go SDK | Ref |
 |---|---|---|---|---|---|---|
-| tested @ 9cf8a033 (post-v0.0.1-alpha.5, unreleased) | current | protocol/v1 | PyPI 0.0.1a5 / git v0.0.2 | npm @alpha 0.0.1-alpha.5 | v0.0.1-alpha.4 | [1] |
-| v0.0.1-alpha.5 | supported | protocol/v1 | — | — | — | [2] |
-| v0.0.1-alpha.4 | supported | protocol/v1 | — | — | — | [3] |
-| v0.0.1-alpha.3 | supported | protocol/v1 | — | — | — | [4] |
-| v0.0.1-alpha.2 | previous | protocol/v1 | — | — | — | [4] |
-| v0.0.1-alpha.1 | previous | protocol/v1 | — | — | — | [4] |
+| tested @ 9cf8a033 (post-v0.0.1-alpha.5, unreleased) | current | protocol/v1 | PyPI 0.0.1a5 / git v0.0.2 | npm @alpha 0.0.1-alpha.5 | v0.0.1-alpha.4 | [^cn1] |
+| v0.0.1-alpha.5 | supported | protocol/v1 | — | — | — | [^cn2] |
+| v0.0.1-alpha.4 | supported | protocol/v1 | — | — | — | [^cn3] |
+| v0.0.1-alpha.3 | supported | protocol/v1 | — | — | — | [^cn4] |
+| v0.0.1-alpha.2 | previous | protocol/v1 | — | — | — | [^cn4] |
+| v0.0.1-alpha.1 | previous | protocol/v1 | — | — | — | [^cn4] |
 
 <!-- END GENERATED:matrix -->
 
@@ -52,10 +53,13 @@ marker links each row to its provenance footnote in the **Notes** list below.
 
 <!-- BEGIN GENERATED:notes -->
 
-1. All three SDKs pin aa-core/aa-proto/aa-sdk-client at git SHA 9cf8a033 (PR #958, 2026-06-05; 587 commits ahead of v0.0.1-alpha.5). This is the ONLY authoritatively-verified core<->SDK pairing: it is the exact revision every current SDK is built against. It is not a published core tag.
-2. Latest published core tag. No SDK tag pins exactly this commit; current SDKs pin a later SHA (see the pinned-commit row). SDK cells left as — to avoid asserting an unverified tag<->tag pairing.
-3. Published core tag. No SDK tag authoritatively pins this exact commit.
-4. Published core tag. SDK tags carrying the same version string (python/node/go of the matching alpha) exist, but at their tag time the SDK FFI crates did not yet pin a resolvable aa-core rev, so an exact commit<->commit pairing is NOT verifiable. Left as — per the accuracy contract.
+[^cn1]: All three SDKs pin aa-core/aa-proto/aa-sdk-client at git SHA 9cf8a033 (PR #958, 2026-06-05; 587 commits ahead of v0.0.1-alpha.5). This is the ONLY authoritatively-verified core<->SDK pairing: it is the exact revision every current SDK is built against. It is not a published core tag.
+
+[^cn2]: Latest published core tag. No SDK tag pins exactly this commit; current SDKs pin a later SHA (see the pinned-commit row). SDK cells left as — to avoid asserting an unverified tag<->tag pairing.
+
+[^cn3]: Published core tag. No SDK tag authoritatively pins this exact commit.
+
+[^cn4]: Published core tag. SDK tags carrying the same version string (python/node/go of the matching alpha) exist, but at their tag time the SDK FFI crates did not yet pin a resolvable aa-core rev, so an exact commit<->commit pairing is NOT verifiable. Left as — per the accuracy contract.
 
 <!-- END GENERATED:notes -->
 
