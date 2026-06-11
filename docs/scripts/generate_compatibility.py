@@ -3,9 +3,15 @@
 This script is the one-way bridge between ``compatibility.toml`` (the human-edited
 source of truth) and ``docs/src/compatibility.md`` (the rendered page). It reads the
 manifest with the standard-library ``tomllib`` (no third-party dependency), renders a
-release matrix table and a per-SDK requirements table, and splices each into the
-Markdown page between its dedicated ``BEGIN GENERATED`` / ``END GENERATED`` markers so
-the hand-written prose and the live badge strip are preserved.
+compact release matrix table, a numbered footnote ("Notes") list, and a per-SDK
+requirements table, and splices each into the Markdown page between its dedicated
+``BEGIN GENERATED`` / ``END GENERATED`` markers so the hand-written prose and the live
+badge strip are preserved.
+
+The matrix table is intentionally compact: every cell holds only a version, a range,
+the sentinel ``—`` or a short footnote marker (e.g. ``[1]``). The long provenance and
+caveat prose lives in the separate "Notes" footnote list rendered below the table, so
+the table columns stay uniform and no single row balloons.
 
 Run it with no arguments to regenerate the page in place. Run it with ``--check`` to
 verify the committed page already matches the manifest (used by CI to fail on drift).
@@ -30,6 +36,8 @@ PAGE_PATH: Final[Path] = REPO_ROOT / "docs" / "src" / "compatibility.md"
 
 MATRIX_BEGIN: Final[str] = "<!-- BEGIN GENERATED:matrix -->"
 MATRIX_END: Final[str] = "<!-- END GENERATED:matrix -->"
+NOTES_BEGIN: Final[str] = "<!-- BEGIN GENERATED:notes -->"
+NOTES_END: Final[str] = "<!-- END GENERATED:notes -->"
 REQUIREMENTS_BEGIN: Final[str] = "<!-- BEGIN GENERATED:requirements -->"
 REQUIREMENTS_END: Final[str] = "<!-- END GENERATED:requirements -->"
 
@@ -57,39 +65,99 @@ def load_manifest(path: Path) -> dict[str, object]:
         return tomllib.load(handle)
 
 
-def render_matrix(manifest: dict[str, object]) -> str:
-    """Render the per-core-release compatibility matrix as a Markdown table.
-
-    Each row pairs one core release with the SDK release that speaks its wire
-    protocol, plus the protocol contract, lifecycle status, and a provenance note.
-    """
+def _releases(manifest: dict[str, object]) -> list[dict[str, object]]:
+    """Return the ``[[release]]`` array, validating its shape."""
     releases = manifest.get("release", [])
     if not isinstance(releases, list):
         raise TypeError("manifest key 'release' must be an array of tables")
+    for entry in releases:
+        if not isinstance(entry, dict):
+            raise TypeError("each [[release]] entry must be a table")
+    return releases
 
+
+def _note_texts(manifest: dict[str, object]) -> dict[str, str]:
+    """Return a mapping of footnote key -> note text from the ``[[note]]`` array."""
+    notes = manifest.get("note", [])
+    if not isinstance(notes, list):
+        raise TypeError("manifest key 'note' must be an array of tables")
+    texts: dict[str, str] = {}
+    for entry in notes:
+        if not isinstance(entry, dict):
+            raise TypeError("each [[note]] entry must be a table")
+        key = str(entry.get("key", ""))
+        if not key:
+            raise ValueError("each [[note]] entry must have a non-empty 'key'")
+        texts[key] = str(entry.get("text", ""))
+    return texts
+
+
+def assign_footnotes(manifest: dict[str, object]) -> tuple[dict[str, int], list[str]]:
+    """Number footnotes in first-cited order across the release rows.
+
+    Returns a ``(ref -> number)`` map and the note texts ordered by that number, so
+    the matrix markers and the rendered "Notes" list share one consistent numbering.
+    Every ``ref`` cited by a release must resolve to a ``[[note]]`` text.
+    """
+    texts = _note_texts(manifest)
+    numbers: dict[str, int] = {}
+    ordered: list[str] = []
+    for entry in _releases(manifest):
+        ref = str(entry.get("ref", ""))
+        if not ref or ref in numbers:
+            continue
+        if ref not in texts:
+            raise ValueError(f"release ref {ref!r} has no matching [[note]] entry")
+        numbers[ref] = len(ordered) + 1
+        ordered.append(texts[ref])
+    return numbers, ordered
+
+
+def render_matrix(manifest: dict[str, object], footnotes: dict[str, int]) -> str:
+    """Render the per-core-release compatibility matrix as a compact Markdown table.
+
+    Each row pairs one core release with the SDK release (or range) that speaks its
+    wire protocol, plus the protocol contract and lifecycle status. Every cell stays
+    short: a version, a range, the sentinel ``—`` or a footnote marker. The trailing
+    ``Ref`` column holds a compact marker (e.g. ``[1]``) into the "Notes" list below.
+    """
     header = (
         "| Core release | Status | Protocol | "
         + " | ".join(SDK_HEADERS[key] for key in SDK_KEYS)
-        + " | Notes |"
+        + " | Ref |"
     )
     separator = "|---|---|---|" + "---|" * len(SDK_KEYS) + "---|"
 
     lines: list[str] = [header, separator]
-    for entry in releases:
-        if not isinstance(entry, dict):
-            raise TypeError("each [[release]] entry must be a table")
+    for entry in _releases(manifest):
         sdks = entry.get("sdks", {})
         if not isinstance(sdks, dict):
             raise TypeError("each [release.sdks] entry must be a table")
+        ref = str(entry.get("ref", ""))
+        marker = f"[{footnotes[ref]}]" if ref in footnotes else ""
         cells = [
             _escape_cell(str(entry.get("core", "—"))),
             _escape_cell(str(entry.get("status", "—"))),
             _escape_cell(str(entry.get("proto", "—"))),
         ]
         cells.extend(_escape_cell(str(sdks.get(key, "—"))) for key in SDK_KEYS)
-        cells.append(_escape_cell(str(entry.get("notes", ""))))
+        cells.append(marker)
         lines.append("| " + " | ".join(cells) + " |")
 
+    return "\n".join(lines)
+
+
+def render_notes(ordered_notes: list[str]) -> str:
+    """Render the numbered "Notes" footnote list that sits below the matrix table.
+
+    Each entry corresponds to a ``Ref`` marker in the matrix; the long provenance
+    and caveat prose lives here so the table itself stays compact.
+    """
+    if not ordered_notes:
+        return "_No footnotes._"
+    lines: list[str] = []
+    for index, text in enumerate(ordered_notes, start=1):
+        lines.append(f"{index}. {text}")
     return "\n".join(lines)
 
 
@@ -137,8 +205,12 @@ def splice(page: str, begin: str, end: str, body: str) -> str:
 
 
 def render_page(manifest: dict[str, object], current: str) -> str:
-    """Return the page text with both generated blocks refreshed from the manifest."""
-    rendered = splice(current, MATRIX_BEGIN, MATRIX_END, render_matrix(manifest))
+    """Return the page text with every generated block refreshed from the manifest."""
+    footnotes, ordered_notes = assign_footnotes(manifest)
+    rendered = splice(
+        current, MATRIX_BEGIN, MATRIX_END, render_matrix(manifest, footnotes)
+    )
+    rendered = splice(rendered, NOTES_BEGIN, NOTES_END, render_notes(ordered_notes))
     rendered = splice(
         rendered, REQUIREMENTS_BEGIN, REQUIREMENTS_END, render_requirements(manifest)
     )
