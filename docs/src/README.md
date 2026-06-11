@@ -50,4 +50,4 @@ All three layers report to the **gateway**, which evaluates policy and tracks pe
 
 ---
 
-*Last reviewed: 2026-06-09 — AI Agent Assembly Team*
+*Last reviewed: 2026-06-11 — AI Agent Assembly Team*
