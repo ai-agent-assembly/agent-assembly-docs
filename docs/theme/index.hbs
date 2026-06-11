@@ -345,19 +345,45 @@
         {{/if}}
         {{/if}}
 
-        <!-- AAASM doc-version selector logic (custom mdBook versioning, AAASM-2753) -->
+        <!-- AAASM doc-version selector + channel warning banner
+             (custom mdBook channel versioning, AAASM-2753) -->
         <script>
         (function () {
             var wrapper = document.getElementById("version-selector-wrapper");
             var select = document.getElementById("version-selector");
             if (!wrapper || !select) { return; }
 
-            // The book is served from a per-version subpath (e.g. /latest/ or /0.1.0/).
+            // The book is served from a per-version subpath (e.g. /latest/ or /v0.1.0/).
             // versions.json lives at the deployed site root, one level above that subpath.
             var path = window.location.pathname;
             var match = path.match(/^(.*?\/)([^\/]+)\//);
             var siteRoot = match ? match[1] : "/";
             var currentVersion = match ? match[2] : "latest";
+
+            // Channel ordering: live channels first, then archived snapshots.
+            var CHANNEL_ORDER = { "latest": 0, "pre-release": 1, "stable": 2 };
+            function channelRank(ch) {
+                return CHANNEL_ORDER.hasOwnProperty(ch) ? CHANNEL_ORDER[ch] : 99;
+            }
+
+            function channelOf(v) {
+                // Explicit channel wins; otherwise treat as an archived snapshot.
+                return v.channel || "archived";
+            }
+
+            function showBanner(html) {
+                var banner = document.createElement("div");
+                banner.id = "version-warning";
+                banner.className = "version-warning";
+                banner.setAttribute("role", "status");
+                banner.innerHTML = html;
+                var content = document.getElementById("content");
+                if (content && content.parentNode) {
+                    content.parentNode.insertBefore(banner, content);
+                } else {
+                    document.body.insertBefore(banner, document.body.firstChild);
+                }
+            }
 
             fetch(siteRoot + "versions.json", { cache: "no-cache" })
                 .then(function (resp) { return resp.ok ? resp.json() : null; })
@@ -365,19 +391,72 @@
                     if (!data || !Array.isArray(data.versions) || data.versions.length === 0) {
                         return;
                     }
-                    data.versions.forEach(function (v) {
-                        var opt = document.createElement("option");
-                        opt.value = v.path;
-                        opt.textContent = v.label || v.id;
-                        if (v.id === currentVersion) { opt.selected = true; }
-                        select.appendChild(opt);
+                    var versions = data.versions;
+
+                    // --- Populate the selector: channels first, then archived. ---
+                    var channelEntries = versions.filter(function (v) { return v.channel; });
+                    var archivedEntries = versions.filter(function (v) { return !v.channel; });
+
+                    function appendGroup(label, entries) {
+                        if (entries.length === 0) { return; }
+                        var group = document.createElement("optgroup");
+                        group.label = label;
+                        entries.forEach(function (v) {
+                            var opt = document.createElement("option");
+                            opt.value = v.path;
+                            opt.textContent = v.label || v.id;
+                            if (v.id === currentVersion) { opt.selected = true; }
+                            group.appendChild(opt);
+                        });
+                        select.appendChild(group);
+                    }
+
+                    // Sort channel entries by channel priority (latest, pre-release, stable).
+                    channelEntries.sort(function (a, b) {
+                        return channelRank(a.channel) - channelRank(b.channel);
                     });
+                    appendGroup("Channels", channelEntries);
+                    appendGroup("Archived", archivedEntries);
+
                     wrapper.classList.remove("hidden");
                     select.addEventListener("change", function () {
                         window.location.href = siteRoot + select.value;
                     });
+
+                    // --- Version-warning banner ---
+                    var current = versions.filter(function (v) { return v.id === currentVersion; })[0];
+                    var currentChannel = current ? channelOf(current) : "latest";
+                    var stable = versions.filter(function (v) { return v.channel === "stable"; })[0];
+                    var stableHref = stable ? (siteRoot + stable.path) : null;
+
+                    if (currentChannel === "stable") {
+                        // Stable: no banner.
+                        return;
+                    }
+                    if (currentChannel === "latest") {
+                        showBanner(
+                            "You are reading the <strong>in-development (main)</strong> documentation. " +
+                            "Features here may be unreleased or change before the next stable release." +
+                            (stableHref ? ' <a href="' + stableHref + '">View the latest stable release &rarr;</a>' : "")
+                        );
+                        return;
+                    }
+                    // pre-release or archived snapshot
+                    if (stable) {
+                        showBanner(
+                            "This is <strong>not the latest stable</strong> documentation. " +
+                            'The current stable release is <strong>' + (stable.label || stable.id) + '</strong>. ' +
+                            '<a href="' + stableHref + '">Go to the stable docs &rarr;</a>'
+                        );
+                    } else {
+                        // No stable cut yet — gentle pre-release notice.
+                        showBanner(
+                            "This is a <strong>pre-release</strong> of AI Agent Assembly. " +
+                            "There is no stable release yet; documentation may change before general availability."
+                        );
+                    }
                 })
-                .catch(function () { /* no manifest: leave selector hidden */ });
+                .catch(function () { /* no manifest: leave selector hidden, no banner */ });
         })();
         </script>
 
