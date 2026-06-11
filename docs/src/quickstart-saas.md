@@ -66,11 +66,15 @@ if __name__ == "__main__":
     print(answer)
 ```
 
-The `@aaa.agent` decorator registers `langchain-research-agent` with the gateway, wraps every invocation with pre-execution policy evaluation, and emits an audit event for every LangChain call — without modifying LangChain internals.
+The `@aaa.agent` decorator does three things, without touching LangChain internals:
+
+- Registers `langchain-research-agent` with the gateway.
+- Runs a policy check before each invocation, blocking the call if policy denies it.
+- Emits an audit event for every call.
 
 ### Step 4 — Activate a starter policy
 
-In the console, open **Policies → New Policy** and apply the starter template (allow all, audit all). This takes under 30 seconds. Every subsequent call from `langchain-research-agent` is now governed, audited, and visible in the **Audit Log** panel.
+In the console, open **Policies → New Policy** and apply the starter template (allow all, audit all). This takes under 30 seconds. From now on, every call from `langchain-research-agent` is governed, audited, and visible in the **Audit Log** panel.
 
 ### What governance looks like at runtime
 
@@ -186,12 +190,12 @@ def run_agent(prompt: str) -> str:
 
 ---
 
-## Next Steps
+## Next steps
 
-- [Cloud Deployment](cloud-deployment.md) — SSO/SCIM deep-dive, region selection, billing, SLA tiers
-- [Policy Reference](policy-reference.md) — full policy rule schema
-- [Open Core Boundary](open-core-boundary.md) — what's in the OSS core vs enterprise tier
+- [Cloud deployment](cloud-deployment.md) — SSO/SCIM deep-dive, region selection, billing, SLA tiers
+- [Policy reference](policy-reference.md) — full policy rule schema
+- [Open core boundary](open-core-boundary.md) — what's in the OSS core vs. the enterprise tier
 
 ---
 
-*Last reviewed: 2026-05-10 · AI Agent Assembly Team*
+*Last reviewed: 2026-06-11 · AI Agent Assembly Team*
