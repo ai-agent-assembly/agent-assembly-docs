@@ -1,5 +1,13 @@
 # AI Agent Assembly Documentation
 
+[![core](https://img.shields.io/badge/core-v0.0.1--alpha.5-3b82f6?logo=github)](https://github.com/ai-agent-assembly/agent-assembly)
+[![python-sdk](https://img.shields.io/pypi/v/agent-assembly?label=python-sdk&logo=pypi)](https://github.com/ai-agent-assembly/python-sdk)
+[![node-sdk](https://img.shields.io/npm/v/@agent-assembly/sdk/alpha?label=node-sdk&logo=npm)](https://github.com/ai-agent-assembly/node-sdk)
+[![go-sdk](https://img.shields.io/badge/go--sdk-v0.0.1--alpha.4-3b82f6?logo=go)](https://github.com/ai-agent-assembly/go-sdk)
+[![license](https://img.shields.io/badge/license-Apache--2.0-green)](https://github.com/ai-agent-assembly/agent-assembly-docs/blob/main/LICENSE)
+
+Quick links to each component, its current version, and its license. Core and Go versions are static badges pinned to the latest published tag (bumped at release); Python and Node read the live registry version. The project is in alpha (`v0.0.1-alpha`).
+
 AI Agent Assembly is a governance layer for AI agents. It sits between your agents and the outside world and does three things:
 
 - **Enforces policy** — decides, before each action runs, whether an agent is allowed to call a tool, reach a domain, or spend more budget.
