@@ -42,6 +42,8 @@ Operating a multi-tenant SaaS with the security and reliability commitments in t
 
 ## Feature matrix
 
+> 🚧 **Coming soon.** The AAA-Commercial (Enterprise) tier described below — and the paid SaaS platform that delivers it — is planned and not yet generally available. The Apache-2.0 (OSS) column reflects what ships today; the commercial column reflects the intended design.
+
 | Feature | Apache-2.0 (OSS) | AAA-Commercial (Enterprise) |
 |---|---|---|
 | **Core interception layers** | | |

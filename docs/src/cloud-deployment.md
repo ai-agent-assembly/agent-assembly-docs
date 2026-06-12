@@ -1,5 +1,7 @@
 # Cloud Deployment
 
+> 🚧 **Coming soon.** The AI Agent Assembly SaaS / commercial platform described here is planned and not yet generally available. The content below reflects the intended design.
+
 This page covers how to configure an enterprise workspace on the AI Agent Assembly SaaS platform: identity federation (SSO), user provisioning (SCIM), regional data residency, budgets, SLAs, and billing.
 
 > **Self-hosted deployment is not available.** AI Agent Assembly is a SaaS-only product. There is no self-hosted, on-premises, or bring-your-own-infrastructure option. All compute, storage, and governance logic runs in the AI Agent Assembly cloud.

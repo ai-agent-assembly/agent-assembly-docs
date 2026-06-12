@@ -1,5 +1,7 @@
 # Quick start (SaaS)
 
+> 🚧 **Coming soon.** The AI Agent Assembly SaaS / commercial platform described here is planned and not yet generally available. The content below reflects the intended design.
+
 This page takes you from zero to a governed AI agent. The fastest path is the LangChain walkthrough below, which works on any tier. If you want to pick a tier first, jump to [Pro](#pro-tier), [Business](#business-tier), or [Enterprise](#enterprise-tier).
 
 AI Agent Assembly is a SaaS-only product. Choose the tier that matches your team size and compliance needs, then connect your first agent.
