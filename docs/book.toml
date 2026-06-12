@@ -1,6 +1,6 @@
 [book]
-title = "AI Agent Assembly — Enterprise Documentation"
-description = "Enterprise evaluator documentation for AI Agent Assembly: governance-native runtime for AI agents."
+title = "AI Agent Assembly Documentation"
+description = "Documentation for AI Agent Assembly: governance-native runtime for AI agents."
 authors = ["AI Agent Assembly Team"]
 language = "en"
 src = "src"

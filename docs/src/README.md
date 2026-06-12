@@ -1,4 +1,4 @@
-# AI Agent Assembly — enterprise documentation
+# AI Agent Assembly Documentation
 
 AI Agent Assembly is a governance layer for AI agents. It sits between your agents and the outside world and does three things:
 
@@ -10,7 +10,7 @@ It works across your whole fleet of agents and does not require you to rewrite y
 
 ## Who this documentation is for
 
-This site is for **enterprise evaluators, security teams, and operators** assessing AI Agent Assembly for production adoption.
+This site is for **teams, security engineers, and operators** evaluating or running AI Agent Assembly for production adoption.
 
 If you are a developer who wants to contribute or integrate at the code level, see the [open-source documentation](https://ai-agent-assembly.github.io/agent-assembly/) instead.
 
