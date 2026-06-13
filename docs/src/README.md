@@ -49,7 +49,7 @@ This hub is the central entry point for AI Agent Assembly documentation. To inst
 ## Runnable examples
 
 Prefer learning by running code? The
-[**agent-assembly-examples**](https://github.com/AI-agent-assembly/agent-assembly-examples)
+[**agent-assembly-examples**](https://github.com/ai-agent-assembly/agent-assembly-examples)
 repo collects small, framework-specific Agent Assembly examples for Python,
 Node.js/TypeScript, Go, policy enforcement, approvals, audit, trace, and runtime
 workflows. Clone it and run an example end to end to see governance in action
