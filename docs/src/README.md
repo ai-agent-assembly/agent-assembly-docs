@@ -46,6 +46,15 @@ This hub is the central entry point for AI Agent Assembly documentation. To inst
 | Node SDK | <https://ai-agent-assembly.github.io/node-sdk/> |
 | Go SDK | <https://ai-agent-assembly.github.io/go-sdk/> |
 
+## Runnable examples
+
+Prefer learning by running code? The
+[**agent-assembly-examples**](https://github.com/ai-agent-assembly/agent-assembly-examples)
+repo collects small, framework-specific Agent Assembly examples for Python,
+Node.js/TypeScript, Go, policy enforcement, approvals, audit, trace, and runtime
+workflows. Clone it and run an example end to end to see governance in action
+before instrumenting your own agents.
+
 ## The three-layer interception model
 
 AI Agent Assembly enforces governance through three layers. You can deploy them independently, and each one catches what the layer above it might miss:
@@ -58,4 +67,4 @@ All three layers report to the **gateway**, which evaluates policy and tracks pe
 
 ---
 
-*Last reviewed: 2026-06-11 — AI Agent Assembly Team*
+*Last reviewed: 2026-06-13 — AI Agent Assembly Team*
