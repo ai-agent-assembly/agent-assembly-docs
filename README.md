@@ -76,6 +76,21 @@ two labels so readers know how much weight to give a page:
 When adding or editing a page that describes a new area, update the status map so
 the public/private and alpha/planned state stays accurate.
 
+## How content reaches the site
+
+Today the hub is **manually authored**: every page under [`docs/src/`](docs/src/)
+is hand-written Markdown, registered in [`SUMMARY.md`](docs/src/SUMMARY.md), built
+by `mdbook build`, and deployed to GitHub Pages by [`deploy.yml`](.github/workflows/deploy.yml)
+on every push to `main`. The hub does **not** copy content from the component repos —
+it links to each component's own docs site root (see the table above).
+
+An **automated cross-repo sync pipeline** — where SDK repos fire a
+`repository_dispatch` event on each release to pull their docs into this hub — is
+**designed but not yet built** (tracked as **AAASM-302**). The end-to-end flow, the
+planned `docs-manifest.json` format, and how to onboard a new repo are documented in
+[`docs/sync-architecture.md`](docs/sync-architecture.md). Until that pipeline lands,
+treat the manual mdBook → Pages flow as the only path content reaches the site.
+
 ## Local development
 
 **Prerequisites**
@@ -143,6 +158,10 @@ The content itself is sourced from:
   the [`last-changed.py`](docs/theme/last-changed.py) preprocessor.
 
 ## Contributing
+
+See **[`CONTRIBUTING.md`](CONTRIBUTING.md)** for the full guide: how to add or edit
+pages, the directory layout, how to run markdownlint and the lychee link checker
+locally, and the PR process. The essentials:
 
 - Content lives under [`docs/src/`](docs/src/), authored in Markdown.
 - Every page must be registered in [`docs/src/SUMMARY.md`](docs/src/SUMMARY.md).
