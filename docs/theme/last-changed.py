@@ -74,9 +74,11 @@ def process_item(item: Any) -> None:
             process_chapter(chapter)
 
 
-def main() -> int:
+def main() -> None:
+    # ``<cmd> supports <renderer>`` -> exit 0 without reading stdin; this
+    # preprocessor supports every renderer.
     if len(sys.argv) > 1 and sys.argv[1] == "supports":
-        return 0
+        return
 
     context_and_book = json.load(sys.stdin)
     _context, book = context_and_book
@@ -88,8 +90,7 @@ def main() -> int:
             process_item(item)
 
     json.dump(book, sys.stdout)
-    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
