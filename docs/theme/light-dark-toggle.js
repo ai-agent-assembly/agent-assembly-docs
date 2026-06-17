@@ -94,7 +94,7 @@
 
         // Insert next to the paintbrush theme toggle when present.
         const paintbrush = findFirst(['mdbook-theme-toggle', 'theme-toggle']);
-        if (paintbrush && paintbrush.parentNode === leftButtons) {
+        if (paintbrush?.parentNode === leftButtons) {
             leftButtons.insertBefore(button, paintbrush.nextSibling);
         } else {
             leftButtons.appendChild(button);
