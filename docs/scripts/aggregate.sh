@@ -39,7 +39,7 @@ mkdir -p "$PUBLIC_DIR" "$MODULES_DIR"
 
 clone_module() {
   local repo="$1" ref="$2" dest="$3"
-  if [ -n "${SKIP_CLONE:-}" ] && [ -d "$dest/.git" ]; then
+  if [[ -n "${SKIP_CLONE:-}" ]] && [[ -d "$dest/.git" ]]; then
     log "Reusing existing checkout: $dest"
     return
   fi
@@ -108,11 +108,11 @@ echo "docs.agent-assembly.com" > "$PUBLIC_DIR/CNAME"
 log "Verifying aggregated output"
 verify_nonempty() {
   local dir="$1" landing="$2"
-  [ -d "$dir" ] || fail "Missing output dir: $dir"
-  [ -f "$dir/$landing" ] || fail "Missing landing page: $dir/$landing"
-  [ -s "$dir/$landing" ] || fail "Empty landing page: $dir/$landing"
+  [[ -d "$dir" ]] || fail "Missing output dir: $dir"
+  [[ -f "$dir/$landing" ]] || fail "Missing landing page: $dir/$landing"
+  [[ -s "$dir/$landing" ]] || fail "Empty landing page: $dir/$landing"
   local n; n="$(find "$dir" -name '*.html' | wc -l | tr -d ' ')"
-  [ "$n" -ge 1 ] || fail "No HTML files under $dir"
+  [[ "$n" -ge 1 ]] || fail "No HTML files under $dir"
   printf '  ok  %-26s (%s html files)\n' "${dir#"$PUBLIC_DIR"/}" "$n"
 }
 verify_nonempty "$PUBLIC_DIR"            "index.html"
@@ -121,10 +121,10 @@ for sub in core python-sdk node-sdk go-sdk; do
 done
 
 # ---- unified search via Pagefind over the FINAL public/ ----
-if [ -z "${SKIP_PAGEFIND:-}" ]; then
+if [[ -z "${SKIP_PAGEFIND:-}" ]]; then
   log "Indexing public/ with Pagefind"
   npx -y pagefind --site "$PUBLIC_DIR"
-  [ -f "$PUBLIC_DIR/pagefind/pagefind.js" ] || fail "Pagefind did not produce pagefind/pagefind.js"
+  [[ -f "$PUBLIC_DIR/pagefind/pagefind.js" ]] || fail "Pagefind did not produce pagefind/pagefind.js"
   echo "  ok  pagefind index written"
 fi
 
