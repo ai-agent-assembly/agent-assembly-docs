@@ -23,19 +23,20 @@ row's provenance note at the bottom of the page.
 
 ## Latest published versions
 
-[![core](https://img.shields.io/badge/core-v0.0.1--beta.2-3b82f6?logo=github)](https://github.com/ai-agent-assembly/agent-assembly/tags)
+[![core](https://img.shields.io/github/v/release/ai-agent-assembly/agent-assembly?include_prereleases&sort=semver&label=core&logo=github&color=3b82f6)](https://github.com/ai-agent-assembly/agent-assembly/releases)
 [![PyPI](https://img.shields.io/pypi/v/agent-assembly?label=python-sdk&logo=pypi)](https://pypi.org/project/agent-assembly/)
 [![npm](https://img.shields.io/npm/v/@agent-assembly/sdk/beta?label=node-sdk&logo=npm)](https://www.npmjs.com/package/@agent-assembly/sdk)
-[![Go](https://img.shields.io/badge/go--sdk-v0.0.1--beta.2-3b82f6?logo=go)](https://github.com/ai-agent-assembly/go-sdk/tags)
+[![Go](https://img.shields.io/github/v/tag/ai-agent-assembly/go-sdk?sort=semver&label=go-sdk&logo=go&color=3b82f6)](https://github.com/ai-agent-assembly/go-sdk/tags)
 
-The **Python** and **Node** badges read the **live** latest published version
-from each registry (PyPI, and npm's `beta` dist-tag), so they are always
-current without maintenance. The **core** and **Go** badges are **static**
-version badges pinned to the current published tags — shields.io's GitHub-tag
-endpoint shares a token pool that is intermittently rate-limited, which makes
-the live `github/v/tag` form render as an error; the static badges always
-render. They are bumped at each release. Each badge links to the relevant
-registry or tag list for the authoritative current version.
+All four badges read the **live** latest published version, so they stay current
+without maintenance. **Python** reads PyPI and **Node** reads npm's `beta`
+dist-tag. **Core** uses shields.io's `github/v/release` endpoint
+(`include_prereleases&sort=semver`): the monorepo carries a non-release `spec/*`
+tag that pollutes plain `github/v/tag` semver sorting, and core cuts GitHub
+Releases, so the release endpoint is the authoritative dynamic source. **Go** uses
+`github/v/tag` (`sort=semver`) because go-sdk publishes version tags but no GitHub
+Releases. Each badge links to the relevant registry or release/tag list for the
+authoritative current version.
 
 ## Core ↔ SDK matrix
 

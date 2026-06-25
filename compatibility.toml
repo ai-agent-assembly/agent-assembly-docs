@@ -241,22 +241,22 @@ source = "go-sdk go.mod (go directive)"
 #   * PyPI distribution name and npm package name are case/scope sensitive.
 #   * GitHub org/repo resolve case-insensitively; canonical casing is lowercase
 #     `ai-agent-assembly` (org policy).
-# The GitHub badges use shields.io's `github/v/tag` endpoint (NOT `github/v/release`
-# and NOT with `sort=semver`/`include_prereleases`): the plain tag endpoint is the
-# only variant that renders reliably for these repos — `github/v/release` has no
-# Releases object for go-sdk, and `sort=semver`+`include_prereleases` trips a
-# shields.io "Unable to select next GitHub token from pool" error. The plain tag
-# endpoint already returns the latest tag (core beta.2, go beta.2).
+# The version badges are LIVE — no hardcoded version. Python reads PyPI, Node reads
+# npm's `beta` dist-tag, Core uses shields.io `github/v/release`
+# (`include_prereleases&sort=semver`), and Go uses `github/v/tag` (`sort=semver`).
+# Core uses the RELEASE endpoint (not tag): the monorepo carries a non-release
+# `spec/*` tag that pollutes `github/v/tag` semver sorting, and core cuts GitHub
+# Releases. Go uses the TAG endpoint because go-sdk publishes tags but no Releases.
 # ------------------------------------------------------------------------------
 
 [badges]
-# Core: GitHub TAG badge (latest published tag = beta.2).
+# Core: GitHub RELEASE badge, include_prereleases&sort=semver (live latest release).
 core_github_repo = "ai-agent-assembly/agent-assembly"
-# Python: PyPI distribution name (latest beta published = 0.0.1b2).
+# Python: PyPI distribution name (live latest from PyPI).
 pypi_package = "agent-assembly"
 # Node: npm scoped package; the prerelease line now lives under the `beta` dist-tag.
 npm_package = "@agent-assembly/sdk"
 npm_dist_tag = "beta"
-# Go: no semantic registry; use the GitHub TAG badge (latest tag = beta.2).
+# Go: no semantic registry and no GitHub Releases; use the GitHub TAG badge, sort=semver (live latest tag).
 go_github_repo = "ai-agent-assembly/go-sdk"
 go_module = "github.com/ai-agent-assembly/go-sdk"
