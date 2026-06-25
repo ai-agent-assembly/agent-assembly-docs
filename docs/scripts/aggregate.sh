@@ -181,9 +181,16 @@ build_go() {         # hugo + hextra FULL version tree (every git tag) -> public
   # git tags are the source of truth; we never mirror the (lossy) live Pages site.
   local src="$1" out="$2"
 
-  # 1. Recompute versions.toml from git tags (verbatim replica of docs-site.yml's
-  #    "Recompute versions.toml from git tags" step — reuses the repo's own
-  #    website/scripts/versions_channels.py so the channel logic cannot drift).
+  # 1. Recompute versions.toml from git tags, mirroring docs-site.yml's
+  #    "Recompute versions.toml from git tags" step. The CHANNEL LOGIC cannot
+  #    drift: it reuses the repo's own website/scripts/versions_channels.py
+  #    (compute_channels/parse_tag). The TOML *serializer* (emit()/block-parse)
+  #    is, however, inlined here because go-sdk does NOT expose it as a reusable
+  #    script — it lives only inside the docs-site.yml workflow step. So the emit
+  #    below is a hand-kept mirror of that step; if it ever drifts into malformed
+  #    output, the tomllib parse check after this block fails the build loudly
+  #    rather than shipping a broken selector (AAASM-3757). If go-sdk later
+  #    factors the serializer into website/scripts/, import it here instead.
   local tags
   tags="$(git -C "$src" tag -l 'v*' | tr '\n' ' ')"
   # shellcheck disable=SC2086 # tags are simple vX.Y.Z[-pre] refs; word-split intended
@@ -245,6 +252,30 @@ with open("expected-archived.txt", "w", encoding="utf-8") as fh:
 print(f"Recomputed {len(tag_set)} archived go-sdk tag(s); channels={channels}")
 PY
   )
+
+  # 1b. Sanity-check the recomputed versions.toml actually parses and lists at
+  #     least the `latest` entry (AAASM-3757). Because the serializer above is a
+  #     hand-kept mirror of docs-site.yml (go-sdk exposes no reusable serializer),
+  #     this guard fails the build loudly if the mirror ever emits malformed TOML
+  #     instead of shipping a silently-broken version selector. Uses tomllib
+  #     (py3.11+); falls back to the same [[versions]] block parser that the
+  #     repo's own build_all_versions.sh uses on older interpreters.
+  python3 - "$src/website/data/versions.toml" <<'PY'
+import re
+import sys
+
+path = sys.argv[1]
+try:
+    import tomllib
+    with open(path, "rb") as fh:
+        n = len(tomllib.load(fh).get("versions", []))
+except ModuleNotFoundError:
+    with open(path, encoding="utf-8") as fh:
+        n = len(re.split(r'(?m)^\[\[versions\]\]\s*$', fh.read())) - 1
+if n < 1:
+    raise SystemExit(f"ERROR: recomputed versions.toml has no [[versions]] entries ({path})")
+print(f"versions.toml parses OK: {n} [[versions]] entr{'y' if n == 1 else 'ies'}")
+PY
 
   # 2. Build every subpath now listed in versions.toml (latest + channels + every
   #    archived tag). build_all_versions.sh overlays the recomputed versions.toml
