@@ -50,17 +50,54 @@ clone_module() {
   git -C "$dest" checkout "$ref"
 }
 
-build_core() {       # mdbook -> public/core/latest + versions.json + root redirect (AAASM-3752)
+build_core() {       # mdbook -> /core/{latest,<tag>...}/ + full versions.json + redirect (AAASM-3753)
   # The core docs ship a channel-based version selector (docs/theme/index.hbs
-  # #aaasm-version-selector) that reads /core/versions.json and navigates to
-  # /core/<channel>/. A flat build at /core/ has no manifest and no channel
-  # subpath, so the selector 404s. Mirror the core docs.yml layout for the
-  # default channel: book at /core/latest/, manifest at /core/versions.json,
-  # and a site-root redirect (stable -> pre-release -> latest, client-side).
+  # #aaasm-version-selector) that reads /core/versions.json at runtime and
+  # navigates to /core/<channel-or-tag>/. To list the FULL archived version set
+  # in the hub (not just `latest`), reproduce the core docs.yml deploy exactly:
+  #   /core/latest/         book built from master HEAD (default channel)
+  #   /core/<vX.Y.Z[-pre]>/  frozen book rebuilt from EACH release git tag
+  #   /core/versions.json   manifest (channels + archived[]) via docs/ci/build_versions.py
+  #   /core/index.html      site-root redirect (stable -> pre-release -> latest)
+  # git is the source of truth (AAASM-2827): the core deploy rebuilds every tag's
+  # book from git on each run, so the hub does the same rather than mirroring the
+  # (lossy) live Pages site. A tag with no docs/book.toml or a failing build is
+  # logged and skipped (its subpath is simply absent) — never fatal, matching
+  # docs.yml.
   local src="$1" out="$2"
   mkdir -p "$out/latest"
   ( cd "$src/docs" && mdbook build -d "$out/latest" )
-  cp "$src/docs/versions.json"        "$out/versions.json"
+
+  # Rebuild every release tag's book into /core/<tag>/ (one worktree per tag,
+  # torn down after). extra-archived.txt feeds build_versions.py's archived[].
+  : > "$src/extra-archived.txt"
+  local tag workdir
+  while IFS= read -r tag; do
+    [[ -z "$tag" ]] && continue
+    workdir="$(mktemp -d)"
+    if git -C "$src" worktree add --detach "$workdir" "$tag" >/dev/null 2>&1 \
+       && [[ -f "$workdir/docs/book.toml" ]] \
+       && ( cd "$workdir/docs" && mdbook build -d "$out/$tag" ) >/dev/null 2>&1; then
+      echo "$tag" >> "$src/extra-archived.txt"
+      printf '  built core archived %s\n' "$tag"
+    else
+      printf '  WARN skipping core tag %s (no docs/book.toml or build failed)\n' "$tag"
+    fi
+    git -C "$src" worktree remove --force "$workdir" >/dev/null 2>&1 || true
+    rm -rf "$workdir"
+  done < <(git -C "$src" tag --list 'v[0-9]*.[0-9]*.[0-9]*' | sort)
+
+  # Manifest: reuse the repo's own channel computation (docs/ci/build_versions.py).
+  # archived[] is seeded from the rebuilt tags (extra-archived.txt) so it is
+  # self-healing from git; the moving pre-release/stable channel pointers are
+  # seeded from the live deployed manifest (the only place those persist — and a
+  # missing fetch only drops the moving channels, never archived[]). This is what
+  # docs.yml does on a master-push cut.
+  ( cd "$src"
+    curl -fsSL "https://ai-agent-assembly.github.io/agent-assembly/versions.json" \
+      -o prior-versions.json 2>/dev/null || rm -f prior-versions.json
+    python3 docs/ci/build_versions.py latest latest "$out/versions.json" )
+
   cp "$src/docs/site-root-index.html" "$out/index.html"
 }
 
