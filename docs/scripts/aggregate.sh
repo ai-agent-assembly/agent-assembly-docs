@@ -289,12 +289,68 @@ verify_manifest "$PUBLIC_DIR/core/versions.json"
 verify_nonempty "$PUBLIC_DIR/core/latest"     "index.html"
 verify_nonempty "$PUBLIC_DIR/go-sdk/latest"   "index.html"
 
+# ---- archived version SETS must be materialised (AAASM-3753) ----
+# core & go-sdk now mirror python's FULL version breadth: every release git tag
+# is rebuilt into its own /<module>/<tag>/ subpath so the hub switcher lists the
+# same set as the standalone site (not just `latest`). Assert at least one
+# archived tag dir exists per module so a regression that silently drops the
+# rebuild loop fails the build instead of shipping a one-entry dropdown.
+verify_archived() {
+  local module="$1"
+  local n; n="$(find "$PUBLIC_DIR/$module" -mindepth 1 -maxdepth 1 -type d -name 'v[0-9]*' | wc -l | tr -d ' ')"
+  [[ "$n" -ge 1 ]] || fail "No archived version dirs under $module/ (expected /<tag>/ snapshots)"
+  printf '  ok  %-26s (%s archived version dirs)\n' "$module" "$n"
+}
+verify_archived core
+verify_archived go-sdk
+
 # ---- unified search via Pagefind over the FINAL public/ ----
+# Pagefind has a single inclusion --glob (no path negation/union), so to keep the
+# index scoped to each module's DEFAULT channel we temporarily move the archived
+# version dirs aside, index, then restore them (AAASM-3753). Without this, every
+# query returns N near-duplicate hits — one per archived version of each page.
+PF_HOLD="$MODULES_DIR/.pagefind-hold"
+scope_pagefind() {       # move non-default version dirs of each module out of public/
+  rm -rf "$PF_HOLD"; mkdir -p "$PF_HOLD"
+  local d
+  # core: archived tag dirs from the manifest (keep latest)
+  if [[ -f "$PUBLIC_DIR/core/versions.json" ]]; then
+    while IFS= read -r d; do
+      [[ -n "$d" && -d "$PUBLIC_DIR/core/$d" ]] && mv "$PUBLIC_DIR/core/$d" "$PF_HOLD/core__$d"
+    done < <(jq -r '.archived[].id' "$PUBLIC_DIR/core/versions.json" 2>/dev/null)
+  fi
+  # go-sdk: every v* tag dir + the stable/pre-release alias dirs (keep latest)
+  for d in "$PUBLIC_DIR"/go-sdk/v[0-9]* "$PUBLIC_DIR/go-sdk/stable" "$PUBLIC_DIR/go-sdk/pre-release"; do
+    [[ -d "$d" ]] && mv "$d" "$PF_HOLD/go-sdk__$(basename "$d")"
+  done
+  # python-sdk: every version + alias dir from the mike manifest (keep latest)
+  if [[ -f "$PUBLIC_DIR/python-sdk/versions.json" ]]; then
+    while IFS= read -r d; do
+      [[ -z "$d" || "$d" == "latest" ]] && continue
+      [[ -d "$PUBLIC_DIR/python-sdk/$d" ]] && mv "$PUBLIC_DIR/python-sdk/$d" "$PF_HOLD/python-sdk__$d"
+    done < <(jq -r '.[] | (.version, (.aliases[]?))' "$PUBLIC_DIR/python-sdk/versions.json" 2>/dev/null)
+  fi
+}
+restore_pagefind() {     # move every held dir back to public/ (idempotent)
+  [[ -d "$PF_HOLD" ]] || return 0
+  local p name mod sub
+  for p in "$PF_HOLD"/*; do
+    [[ -e "$p" ]] || continue
+    name="$(basename "$p")"; mod="${name%%__*}"; sub="${name#*__}"
+    mkdir -p "$PUBLIC_DIR/$mod"
+    mv "$p" "$PUBLIC_DIR/$mod/$sub"
+  done
+  rmdir "$PF_HOLD" 2>/dev/null || true
+}
 if [[ -z "${SKIP_PAGEFIND:-}" ]]; then
-  log "Indexing public/ with Pagefind"
+  log "Indexing public/ with Pagefind (default channel per module only)"
+  scope_pagefind
+  trap 'restore_pagefind' EXIT          # restore even if Pagefind fails
   npx -y pagefind --site "$PUBLIC_DIR"
+  restore_pagefind
+  trap - EXIT
   [[ -f "$PUBLIC_DIR/pagefind/pagefind.js" ]] || fail "Pagefind did not produce pagefind/pagefind.js"
-  echo "  ok  pagefind index written"
+  echo "  ok  pagefind index written (scoped to default channels)"
 fi
 
 log "Aggregation complete -> $PUBLIC_DIR"
