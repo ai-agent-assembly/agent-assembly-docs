@@ -337,6 +337,15 @@ for i in $(seq 0 $((COUNT - 1))); do
   esac
 done
 
+# ---- hub module manifest for the landing module/version switcher (AAASM-3758) ----
+# The hub landing's client-side switcher (docs/theme/head.hbs) reads this file
+# plus each /<module>/versions.json at runtime to build its module + version
+# dropdowns — no version strings are hard-coded anywhere. modules.json is already
+# the build's single source of truth for what gets aggregated, so we publish it
+# verbatim; the switcher only consumes each module's `name` + `subpath`. Built
+# standalone (no aggregation) this file is simply absent and the switcher no-ops.
+cp "$REGISTRY" "$PUBLIC_DIR/modules.json"
+
 # ---- CNAME for the custom domain (owner attaches DNS) ----
 echo "docs.agent-assembly.com" > "$PUBLIC_DIR/CNAME"
 
@@ -365,6 +374,7 @@ verify_manifest() {
   [[ -s "$f" ]] || fail "Missing/empty version manifest: ${f#"$PUBLIC_DIR"/}"
   printf '  ok  %-26s (version manifest)\n' "${f#"$PUBLIC_DIR"/}"
 }
+verify_manifest "$PUBLIC_DIR/modules.json"
 verify_manifest "$PUBLIC_DIR/python-sdk/versions.json"
 verify_manifest "$PUBLIC_DIR/core/versions.json"
 verify_nonempty "$PUBLIC_DIR/core/latest"     "index.html"
