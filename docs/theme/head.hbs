@@ -245,3 +245,144 @@
     } else { init(); }
   })();
 </script>
+
+<!-- Hub-level module + version switcher (AAASM-3758).
+     A persistent header on every hub page that lets you jump straight to any
+     aggregated module at any version/channel WITHOUT first opening that module.
+     It is driven entirely by the manifests the aggregation already produces —
+     {{ path_to_root }}modules.json (module list + subpaths, copied verbatim by
+     docs/scripts/aggregate.sh) and each {{ path_to_root }}<subpath>/versions.json
+     (the same manifest each module's own per-version switcher reads). There are
+     NO hard-coded module or version strings here. Selecting a module + version
+     navigates to /<subpath>/<channel-or-tag>/. A module whose versions.json is
+     absent (e.g. node-sdk / go-sdk, or a hub built standalone with no
+     aggregation) degrades gracefully: it is still listed and its option links to
+     the module root. If modules.json itself is absent the widget silently
+     no-ops, exactly like the Pagefind search above. base-path-aware via mdBook's
+     {{ path_to_root }} so it works under the github.io project subpath AND at the
+     root docs.agent-assembly.com. -->
+<style>
+  .aa-modswitch { margin: 0 0 1rem; padding: .6rem .85rem; border: 1px solid rgba(127,127,127,.4);
+    border-radius: 8px; display: flex; flex-wrap: wrap; gap: .5rem; align-items: center;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .aa-modswitch__label { font-weight: 600; margin-right: .15rem; }
+  .aa-modswitch select { cursor: pointer; border: 1px solid rgba(127,127,127,.4); background: transparent;
+    color: inherit; border-radius: 6px; padding: .35rem .5rem; font-size: 14px; max-width: 18rem; }
+  html[data-theme="navy"] .aa-modswitch select option,
+  html[data-theme="coal"] .aa-modswitch select option,
+  html[data-theme="ayu"] .aa-modswitch select option { background: #1f2430; color: #e7eaf0; }
+  .aa-modswitch__go { cursor: pointer; border: 0; border-radius: 6px; padding: .4rem .85rem;
+    font-size: 14px; font-weight: 600; background: #8ab4f8; color: #14161b; text-decoration: none; }
+  .aa-modswitch__go:hover { filter: brightness(1.05); }
+</style>
+<script>
+  (function () {
+    // base-path-aware root (works under github.io/agent-assembly-docs/ AND the root domain).
+    var ROOT = '{{ path_to_root }}';
+
+    function el(tag, attrs) {
+      var n = document.createElement(tag);
+      for (var k in attrs) { if (attrs.hasOwnProperty(k)) { n.setAttribute(k, attrs[k]); } }
+      return n;
+    }
+    function option(value, label) {
+      var o = document.createElement('option');
+      o.value = value; o.textContent = label;
+      return o;
+    }
+    function prettyModule(name) {
+      // Display-only label; never affects navigation (which uses subpath).
+      return name.replace(/-/g, ' ').replace(/\bsdk\b/gi, 'SDK')
+                 .replace(/^\w/, function (c) { return c.toUpperCase(); });
+    }
+    // Normalise either manifest shape into a flat [{value, label}] option list.
+    //   core (mdBook)  -> { channels:[{id,title}], archived:[{id,title}] }
+    //   python (mike)  -> [ {version,title,aliases:[...]} ]
+    // value is the subpath segment to navigate to (/<module>/<value>/).
+    function optionsFromManifest(data) {
+      var opts = [];
+      if (Array.isArray(data)) {
+        data.forEach(function (e) {
+          if (!e || !e.version) { return; }
+          var label = e.title || e.version;
+          if (e.aliases && e.aliases.length) { label += ' — ' + e.aliases.join(' / '); }
+          opts.push({ value: e.version, label: label });
+        });
+      } else if (data && typeof data === 'object') {
+        (data.channels || []).forEach(function (c) {
+          if (c && c.id) { opts.push({ value: c.id, label: c.title || c.id }); }
+        });
+        (data.archived || []).forEach(function (a) {
+          if (a && a.id) { opts.push({ value: a.id, label: a.title || a.id }); }
+        });
+      }
+      return opts;
+    }
+
+    function build(modules) {
+      var content = document.querySelector('#content main') || document.querySelector('main');
+      if (!content || !modules.length || document.querySelector('.aa-modswitch')) { return; }
+
+      var bar = el('div', { 'class': 'aa-modswitch', 'role': 'group', 'aria-label': 'Browse module documentation' });
+      var label = el('span', { 'class': 'aa-modswitch__label' });
+      label.textContent = 'Browse module docs:';
+      var modSel = el('select', { 'class': 'aa-modswitch__mod', 'aria-label': 'Module' });
+      var verSel = el('select', { 'class': 'aa-modswitch__ver', 'aria-label': 'Version or channel' });
+      var go = el('a', { 'class': 'aa-modswitch__go', 'href': '#' });
+      go.textContent = 'Go →';
+
+      modules.forEach(function (m) {
+        if (m && m.name && m.subpath) { modSel.appendChild(option(m.subpath, prettyModule(m.name))); }
+      });
+
+      function targetUrl() {
+        var sub = modSel.value;
+        var ver = verSel.value;
+        return ROOT + sub + '/' + (ver ? ver + '/' : '');
+      }
+      function loadVersions() {
+        var sub = modSel.value;
+        verSel.innerHTML = '';
+        verSel.disabled = true;
+        verSel.appendChild(option('', 'Loading…'));
+        fetch(ROOT + sub + '/versions.json', { cache: 'no-cache' })
+          .then(function (r) { if (!r.ok) { throw new Error('no manifest'); } return r.json(); })
+          .then(function (data) {
+            var opts = optionsFromManifest(data);
+            verSel.innerHTML = '';
+            if (!opts.length) { throw new Error('empty manifest'); }
+            opts.forEach(function (o) { verSel.appendChild(option(o.value, o.label)); });
+            verSel.disabled = false;
+          })
+          .catch(function () {
+            // No (or unreadable) versions.json — still navigable; fall back to the module root.
+            verSel.innerHTML = '';
+            verSel.appendChild(option('', 'latest'));
+            verSel.disabled = false;
+          });
+      }
+
+      modSel.addEventListener('change', loadVersions);
+      go.addEventListener('click', function (e) { e.preventDefault(); location.href = targetUrl(); });
+      verSel.addEventListener('keydown', function (e) { if (e.key === 'Enter') { location.href = targetUrl(); } });
+
+      bar.appendChild(label);
+      bar.appendChild(modSel);
+      bar.appendChild(verSel);
+      bar.appendChild(go);
+      content.insertBefore(bar, content.firstChild);
+      loadVersions();
+    }
+
+    function init() {
+      if (document.querySelector('.aa-modswitch')) { return; }
+      fetch(ROOT + 'modules.json', { cache: 'no-cache' })
+        .then(function (r) { if (!r.ok) { throw new Error('no modules.json'); } return r.json(); })
+        .then(function (data) { build((data && data.modules) || []); })
+        .catch(function () { /* standalone hub build (no aggregation) — silently no-op */ });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else { init(); }
+  })();
+</script>
