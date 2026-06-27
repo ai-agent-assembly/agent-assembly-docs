@@ -42,15 +42,17 @@
 # row should carry the new compatible range (e.g. ">=0.2.0,<0.3.0"), and the note
 # should spell out that older SDKs (e.g. "<0.2.0") are incompatible.
 #
-# DATA AS VERIFIED 2026-06-18 (sources in the [[note]] texts and the report):
+# DATA AS VERIFIED 2026-06-27 (sources in the [[note]] texts and the report):
 #   * Core published tags: v0.0.1-alpha.1 .. v0.0.1-alpha.9, then the beta channel
-#     v0.0.1-beta.1 and v0.0.1-beta.2 (GitHub tags/releases). The current product
-#     line is v0.0.1-beta.2 (the canonical master Cargo version).
+#     v0.0.1-beta.1 .. v0.0.1-beta.4, then the release-candidate channel
+#     v0.0.1-rc.1 and v0.0.1-rc.2 (GitHub tags/releases). The current product line
+#     is v0.0.1-rc.2 (the canonical master Cargo version).
 #       https://github.com/ai-agent-assembly/agent-assembly/tags
-#   * The beta line was cut as COORDINATED releases across all four repos
+#   * The beta and rc lines were cut as COORDINATED releases across all four repos
 #     (agent-assembly + python-sdk + node-sdk + go-sdk): each carries matching
-#     v0.0.1-beta.1 and v0.0.1-beta.2 tags, so those rows record authoritative
-#     tag<->tag pairings (PyPI 0.0.1b1/0.0.1b2, npm @beta 0.0.1-beta.1/0.0.1-beta.2).
+#     beta.1..beta.4 and rc.1/rc.2 tags, so those rows record authoritative
+#     tag<->tag pairings (PyPI 0.0.1b1..0.0.1b4 then 0.0.1rc1/0.0.1rc2; npm @beta
+#     for the beta line and @rc 0.0.1-rc.1/0.0.1-rc.2 for the candidate line).
 #   * No final v0.0.1 core release exists yet (the core repo's own matrix lists a
 #     v0.0.1 row aspirationally; we only record PUBLISHED tags here).
 #   * The earlier "tested @ <sha>" pinned-SHA row (post-alpha.5, PR #958) predates
@@ -72,8 +74,48 @@
 # ------------------------------------------------------------------------------
 
 [[release]]
-core = "v0.0.1-beta.2"
+core = "v0.0.1-rc.2"
 status = "current"
+proto = "protocol/v1"
+ref = "rc2"
+[release.sdks]
+python = "0.0.1-rc.2 (PyPI 0.0.1rc2)"
+node = "npm @rc 0.0.1-rc.2"
+go = "v0.0.1-rc.2"
+
+[[release]]
+core = "v0.0.1-rc.1"
+status = "supported"
+proto = "protocol/v1"
+ref = "rc1"
+[release.sdks]
+python = "0.0.1-rc.1 (PyPI 0.0.1rc1)"
+node = "npm @rc 0.0.1-rc.1"
+go = "v0.0.1-rc.1"
+
+[[release]]
+core = "v0.0.1-beta.4"
+status = "supported"
+proto = "protocol/v1"
+ref = "beta4"
+[release.sdks]
+python = "0.0.1-beta.4 (PyPI 0.0.1b4)"
+node = "npm @beta 0.0.1-beta.4"
+go = "v0.0.1-beta.4"
+
+[[release]]
+core = "v0.0.1-beta.3"
+status = "supported"
+proto = "protocol/v1"
+ref = "beta3"
+[release.sdks]
+python = "0.0.1-beta.3 (PyPI 0.0.1b3)"
+node = "npm @beta 0.0.1-beta.3"
+go = "v0.0.1-beta.3"
+
+[[release]]
+core = "v0.0.1-beta.2"
+status = "supported"
 proto = "protocol/v1"
 ref = "beta2"
 [release.sdks]
@@ -163,8 +205,24 @@ go = "—"
 # ------------------------------------------------------------------------------
 
 [[note]]
+key = "rc2"
+text = "Latest published core tag and the current product line. First-candidate channel cut as a coordinated release across agent-assembly + python-sdk + node-sdk + go-sdk: all four repos carry a v0.0.1-rc.2 tag, PyPI publishes 0.0.1rc2, and npm publishes @agent-assembly/sdk@0.0.1-rc.2 under the rc dist-tag. Each SDK at this tag is built against the matching rc.2 core revision, so the tag<->tag pairing is authoritative."
+
+[[note]]
+key = "rc1"
+text = "Published core tag. First release-candidate in the v0.0.1 series, promoting the channel up from beta. Coordinated across all four repos: agent-assembly + python-sdk + node-sdk + go-sdk each carry a v0.0.1-rc.1 tag (PyPI 0.0.1rc1, npm @agent-assembly/sdk@0.0.1-rc.1 under the rc dist-tag)."
+
+[[note]]
+key = "beta4"
+text = "Published core tag. Cut as a coordinated release across all four repos: agent-assembly + python-sdk + node-sdk + go-sdk each carry a v0.0.1-beta.4 tag (PyPI 0.0.1b4, npm @agent-assembly/sdk@0.0.1-beta.4 under the beta dist-tag)."
+
+[[note]]
+key = "beta3"
+text = "Published core tag. Cut as a coordinated release across all four repos: agent-assembly + python-sdk + node-sdk + go-sdk each carry a v0.0.1-beta.3 tag (PyPI 0.0.1b3, npm @agent-assembly/sdk@0.0.1-beta.3 under the beta dist-tag)."
+
+[[note]]
 key = "beta2"
-text = "Latest published core tag and the current product line. Cut as a coordinated release across agent-assembly + python-sdk + node-sdk + go-sdk (monorepo AAASM-3004): all four repos carry a v0.0.1-beta.2 tag, PyPI publishes 0.0.1b2, and npm publishes @agent-assembly/sdk@0.0.1-beta.2 under the beta dist-tag. Each SDK at this tag is built against the matching beta.2 core revision, so the tag<->tag pairing is authoritative."
+text = "Published core tag. Cut as a coordinated release across agent-assembly + python-sdk + node-sdk + go-sdk (monorepo AAASM-3004): all four repos carry a v0.0.1-beta.2 tag, PyPI publishes 0.0.1b2, and npm publishes @agent-assembly/sdk@0.0.1-beta.2 under the beta dist-tag. Each SDK at this tag is built against the matching beta.2 core revision, so the tag<->tag pairing is authoritative."
 
 [[note]]
 key = "beta1"

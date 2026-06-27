@@ -44,14 +44,18 @@ authoritative current version.
 
 | Core release | Status | Protocol | Python SDK | Node SDK | Go SDK |
 |---|---|---|---|---|---|
-| v0.0.1-beta.2[^cn1] | current | protocol/v1 | 0.0.1-beta.2 (PyPI 0.0.1b2) | npm @beta 0.0.1-beta.2 | v0.0.1-beta.2 |
-| v0.0.1-beta.1[^cn2] | supported | protocol/v1 | 0.0.1-beta.1 (PyPI 0.0.1b1) | npm @beta 0.0.1-beta.1 | v0.0.1-beta.1 |
-| tested @ 9cf8a033 (post-v0.0.1-alpha.5, unreleased)[^cn3] | supported | protocol/v1 | PyPI 0.0.1a5 / git v0.0.2 | npm @alpha 0.0.1-alpha.5 | v0.0.1-alpha.4 |
-| v0.0.1-alpha.5[^cn4] | supported | protocol/v1 | — | — | — |
-| v0.0.1-alpha.4[^cn5] | supported | protocol/v1 | — | — | — |
-| v0.0.1-alpha.3[^cn6] | supported | protocol/v1 | — | — | — |
-| v0.0.1-alpha.2[^cn6] | previous | protocol/v1 | — | — | — |
-| v0.0.1-alpha.1[^cn6] | previous | protocol/v1 | — | — | — |
+| v0.0.1-rc.2[^cn1] | current | protocol/v1 | 0.0.1-rc.2 (PyPI 0.0.1rc2) | npm @rc 0.0.1-rc.2 | v0.0.1-rc.2 |
+| v0.0.1-rc.1[^cn2] | supported | protocol/v1 | 0.0.1-rc.1 (PyPI 0.0.1rc1) | npm @rc 0.0.1-rc.1 | v0.0.1-rc.1 |
+| v0.0.1-beta.4[^cn3] | supported | protocol/v1 | 0.0.1-beta.4 (PyPI 0.0.1b4) | npm @beta 0.0.1-beta.4 | v0.0.1-beta.4 |
+| v0.0.1-beta.3[^cn4] | supported | protocol/v1 | 0.0.1-beta.3 (PyPI 0.0.1b3) | npm @beta 0.0.1-beta.3 | v0.0.1-beta.3 |
+| v0.0.1-beta.2[^cn5] | supported | protocol/v1 | 0.0.1-beta.2 (PyPI 0.0.1b2) | npm @beta 0.0.1-beta.2 | v0.0.1-beta.2 |
+| v0.0.1-beta.1[^cn6] | supported | protocol/v1 | 0.0.1-beta.1 (PyPI 0.0.1b1) | npm @beta 0.0.1-beta.1 | v0.0.1-beta.1 |
+| tested @ 9cf8a033 (post-v0.0.1-alpha.5, unreleased)[^cn7] | supported | protocol/v1 | PyPI 0.0.1a5 / git v0.0.2 | npm @alpha 0.0.1-alpha.5 | v0.0.1-alpha.4 |
+| v0.0.1-alpha.5[^cn8] | supported | protocol/v1 | — | — | — |
+| v0.0.1-alpha.4[^cn9] | supported | protocol/v1 | — | — | — |
+| v0.0.1-alpha.3[^cn10] | supported | protocol/v1 | — | — | — |
+| v0.0.1-alpha.2[^cn10] | previous | protocol/v1 | — | — | — |
+| v0.0.1-alpha.1[^cn10] | previous | protocol/v1 | — | — | — |
 
 <!-- END GENERATED:matrix -->
 
@@ -64,17 +68,25 @@ footnote in the **Notes** list below.
 
 <!-- BEGIN GENERATED:notes -->
 
-[^cn1]: Latest published core tag and the current product line. Cut as a coordinated release across agent-assembly + python-sdk + node-sdk + go-sdk (monorepo AAASM-3004): all four repos carry a v0.0.1-beta.2 tag, PyPI publishes 0.0.1b2, and npm publishes @agent-assembly/sdk@0.0.1-beta.2 under the beta dist-tag. Each SDK at this tag is built against the matching beta.2 core revision, so the tag<->tag pairing is authoritative.
+[^cn1]: Latest published core tag and the current product line. First-candidate channel cut as a coordinated release across agent-assembly + python-sdk + node-sdk + go-sdk: all four repos carry a v0.0.1-rc.2 tag, PyPI publishes 0.0.1rc2, and npm publishes @agent-assembly/sdk@0.0.1-rc.2 under the rc dist-tag. Each SDK at this tag is built against the matching rc.2 core revision, so the tag<->tag pairing is authoritative.
 
-[^cn2]: Published core tag. First beta-channel pre-release in the v0.0.1 series (monorepo AAASM-2951), promoting the channel up from alpha. Coordinated across all four repos: agent-assembly + python-sdk + node-sdk + go-sdk each carry a v0.0.1-beta.1 tag (PyPI 0.0.1b1, npm @agent-assembly/sdk@0.0.1-beta.1).
+[^cn2]: Published core tag. First release-candidate in the v0.0.1 series, promoting the channel up from beta. Coordinated across all four repos: agent-assembly + python-sdk + node-sdk + go-sdk each carry a v0.0.1-rc.1 tag (PyPI 0.0.1rc1, npm @agent-assembly/sdk@0.0.1-rc.1 under the rc dist-tag).
 
-[^cn3]: All three SDKs pin aa-core/aa-proto/aa-sdk-client at git SHA 9cf8a033 (PR #958, 2026-06-05; 587 commits ahead of v0.0.1-alpha.5). This was the authoritatively-verified core<->SDK pairing before the beta line was cut. It is not a published core tag.
+[^cn3]: Published core tag. Cut as a coordinated release across all four repos: agent-assembly + python-sdk + node-sdk + go-sdk each carry a v0.0.1-beta.4 tag (PyPI 0.0.1b4, npm @agent-assembly/sdk@0.0.1-beta.4 under the beta dist-tag).
 
-[^cn4]: Latest published core tag. No SDK tag pins exactly this commit; current SDKs pin a later SHA (see the pinned-commit row). SDK cells left as — to avoid asserting an unverified tag<->tag pairing.
+[^cn4]: Published core tag. Cut as a coordinated release across all four repos: agent-assembly + python-sdk + node-sdk + go-sdk each carry a v0.0.1-beta.3 tag (PyPI 0.0.1b3, npm @agent-assembly/sdk@0.0.1-beta.3 under the beta dist-tag).
 
-[^cn5]: Published core tag. No SDK tag authoritatively pins this exact commit.
+[^cn5]: Published core tag. Cut as a coordinated release across agent-assembly + python-sdk + node-sdk + go-sdk (monorepo AAASM-3004): all four repos carry a v0.0.1-beta.2 tag, PyPI publishes 0.0.1b2, and npm publishes @agent-assembly/sdk@0.0.1-beta.2 under the beta dist-tag. Each SDK at this tag is built against the matching beta.2 core revision, so the tag<->tag pairing is authoritative.
 
-[^cn6]: Published core tag. SDK tags carrying the same version string (python/node/go of the matching alpha) exist, but at their tag time the SDK FFI crates did not yet pin a resolvable aa-core rev, so an exact commit<->commit pairing is NOT verifiable. Left as — per the accuracy contract.
+[^cn6]: Published core tag. First beta-channel pre-release in the v0.0.1 series (monorepo AAASM-2951), promoting the channel up from alpha. Coordinated across all four repos: agent-assembly + python-sdk + node-sdk + go-sdk each carry a v0.0.1-beta.1 tag (PyPI 0.0.1b1, npm @agent-assembly/sdk@0.0.1-beta.1).
+
+[^cn7]: All three SDKs pin aa-core/aa-proto/aa-sdk-client at git SHA 9cf8a033 (PR #958, 2026-06-05; 587 commits ahead of v0.0.1-alpha.5). This was the authoritatively-verified core<->SDK pairing before the beta line was cut. It is not a published core tag.
+
+[^cn8]: Latest published core tag. No SDK tag pins exactly this commit; current SDKs pin a later SHA (see the pinned-commit row). SDK cells left as — to avoid asserting an unverified tag<->tag pairing.
+
+[^cn9]: Published core tag. No SDK tag authoritatively pins this exact commit.
+
+[^cn10]: Published core tag. SDK tags carrying the same version string (python/node/go of the matching alpha) exist, but at their tag time the SDK FFI crates did not yet pin a resolvable aa-core rev, so an exact commit<->commit pairing is NOT verifiable. Left as — per the accuracy contract.
 
 <!-- END GENERATED:notes -->
 
@@ -111,4 +123,4 @@ may be a single version or a **range**, and breaking changes are recorded by
 bumping a row's protocol value and adding a footnote — see the manifest comments
 for the range and breaking-change conventions, including a commented example.
 
-_Last verified: 2026-06-18._
+_Last verified: 2026-06-27._
