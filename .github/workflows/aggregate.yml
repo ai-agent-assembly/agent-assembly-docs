@@ -20,6 +20,13 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Least-privilege default for the whole workflow: the build job only clones
+# public repos and builds, so it needs nothing beyond read access to this repo's
+# contents. The deploy job below opts back up to the Pages scopes it requires at
+# the job level, overriding this default for that job alone.
+permissions:
+  contents: read
+
 jobs:
   build:
     name: Aggregate all module docs
