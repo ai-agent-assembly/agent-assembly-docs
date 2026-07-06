@@ -78,18 +78,22 @@ the public/private and alpha/planned state stays accurate.
 
 ## How content reaches the site
 
-Today the hub is **manually authored**: every page under [`docs/src/`](docs/src/)
-is hand-written Markdown, registered in [`SUMMARY.md`](docs/src/SUMMARY.md), built
-by `mdbook build`, and deployed to GitHub Pages by [`aggregate.yml`](.github/workflows/aggregate.yml)
-on every push to `main`. The hub does **not** copy content from the component repos —
-it links to each component's own docs site root (see the table above).
+The hub's own first-party pages under [`docs/src/`](docs/src/) are hand-written
+Markdown, registered in [`SUMMARY.md`](docs/src/SUMMARY.md) and built with
+`mdbook build`. On every push to `main`, the
+[`aggregate.yml`](.github/workflows/aggregate.yml) workflow builds this hub mdBook
+**and pulls each component's own docs site**, builds every one with its native
+toolchain (mdBook, mkdocs-material, Docusaurus, Hugo + Hextra), and assembles them
+into a single static site — each module mounted under a stable subpath (`/core/`,
+`/python-sdk/`, `/node-sdk/`, `/go-sdk/`) with one unified Pagefind search index —
+then deploys the combined site to GitHub Pages.
 
-An **automated cross-repo sync pipeline** — where SDK repos fire a
-`repository_dispatch` event on each release to pull their docs into this hub — is
-**designed but not yet built** (tracked as **AAASM-302**). The end-to-end flow, the
-planned `docs-manifest.json` format, and how to onboard a new repo are documented in
-[`docs/sync-architecture.md`](docs/sync-architecture.md). Until that pipeline lands,
-treat the manual mdBook → Pages flow as the only path content reaches the site.
+The machine-readable module registry, the build/copy contract, and the
+per-generator base-URL strategy are the executable aggregation contract in
+[`AGGREGATION.md`](AGGREGATION.md), implemented by
+[`docs/scripts/aggregate.sh`](docs/scripts/aggregate.sh) and run by `aggregate.yml`.
+For the reader-facing overview, see
+[How this hub is assembled](docs/src/docs-hub-aggregation.md).
 
 ## Local development
 
