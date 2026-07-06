@@ -46,10 +46,13 @@ mdBook has **no front-matter**: a page's title comes from its `# H1` and its
 placement comes from `SUMMARY.md`. The per-page "Last updated" footer is appended
 automatically from each chapter's last commit date — there is nothing to edit by hand.
 
-> **Versioning channel model:** the published hub does not yet run the
-> latest/pre-release/stable + archived channel layout some sibling docs sites use; it
-> currently routes to each component's own site root. Don't assume channel scaffolding
-> exists here — verify against `SUMMARY.md` and `book.toml` before referencing it.
+> **Versioning channel model:** this `book.toml`/`SUMMARY.md` config governs only
+> the **hub mdBook** at the site root. The published hub *does* serve per-module
+> version/channel machinery — each module's docs mount under `/<module>/` with a
+> `versions.json` manifest (latest/stable/pre-release channels) and archived
+> per-tag subpaths (`/<module>/<tag>/`), driven by `modules.json` — but that layer
+> is produced by the aggregation pipeline, not by this repo's mdBook config. Verify
+> the specifics against [`AGGREGATION.md`](../AGGREGATION.md) and `modules.json`.
 
 ## Build, test, serve
 
