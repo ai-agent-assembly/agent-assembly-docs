@@ -462,7 +462,8 @@ if [[ -z "${SKIP_PAGEFIND:-}" ]]; then
   log "Indexing public/ with Pagefind (default channel per module only)"
   scope_pagefind
   trap 'restore_pagefind' EXIT          # restore even if Pagefind fails
-  npx -y pagefind --site "$PUBLIC_DIR"
+  # Pinned version — bump deliberately when upgrading; see AAASM-4283.
+  npx -y pagefind@1.4.0 --site "$PUBLIC_DIR"
   restore_pagefind
   trap - EXIT
   [[ -f "$PUBLIC_DIR/pagefind/pagefind.js" ]] || fail "Pagefind did not produce pagefind/pagefind.js"
