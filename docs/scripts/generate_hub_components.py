@@ -13,10 +13,11 @@ markers so the hand-written prose is preserved.
 
 Target pages (in the order they are updated):
 
-* ``docs/src/README.md``       -> the "SDKs & components" table on the landing page
+* ``docs/src/README.md``       -> the landing-page version badges AND the
+                                  "SDKs & components" table
 * ``docs/src/documentation.md`` -> the Core + SDKs router lists
 * ``docs/src/docs-hub-aggregation.md`` -> the Path / Module / Generator table
-* ``docs/src/source-of-truth.md`` -> the canonical status map's component rows
+* ``docs/src/source-of-truth.md`` -> the canonical status map
 
 Run it with no arguments to regenerate the pages in place. Run it with
 ``--check`` to verify the committed pages already match the manifest (used by
@@ -259,6 +260,59 @@ def render_aggregation_table(manifest: dict[str, object]) -> str:
     return "\n".join(lines)
 
 
+def render_landing_badges(manifest: dict[str, object]) -> str:
+    """Render the version-badge block at the top of ``docs/src/README.md``.
+
+    Each aggregated component has one shields.io version badge that reads its
+    latest published version live (GitHub releases for core and Go, PyPI for
+    Python, npm's ``rc`` dist-tag for Node). The badge image URL and the
+    trailing link URL vary per registry, so both are looked up by ``key`` here
+    rather than derived from generic manifest fields — a new component in
+    ``hub-components.toml`` will not silently gain a badge until an entry is
+    added below.
+
+    The license badge is not driven by the manifest (it links at the hub's own
+    repository, not a component) and stays hand-authored outside the block.
+
+    Rendered output is byte-identical to the current hand-authored badges.
+    """
+    components = _aggregated(_components(manifest))
+    # Per-component badge image URL and target URL. Keys must match the
+    # manifest's component keys. Missing keys are skipped, matching the
+    # behaviour of the source-of-truth renderer.
+    badge: dict[str, tuple[str, str]] = {
+        "core": (
+            "https://img.shields.io/github/v/release/ai-agent-assembly/"
+            "agent-assembly?include_prereleases&sort=semver&label=core&"
+            "logo=github&color=3b82f6",
+            "https://github.com/ai-agent-assembly/agent-assembly/releases",
+        ),
+        "python-sdk": (
+            "https://img.shields.io/pypi/v/agent-assembly?label=python-sdk&"
+            "logo=pypi",
+            "https://github.com/ai-agent-assembly/python-sdk",
+        ),
+        "node-sdk": (
+            "https://img.shields.io/npm/v/@agent-assembly/sdk/rc?"
+            "label=node-sdk&logo=npm",
+            "https://github.com/ai-agent-assembly/node-sdk",
+        ),
+        "go-sdk": (
+            "https://img.shields.io/github/v/tag/ai-agent-assembly/go-sdk?"
+            "sort=semver&label=go-sdk&logo=go&color=3b82f6",
+            "https://github.com/ai-agent-assembly/go-sdk/tags",
+        ),
+    }
+    lines: list[str] = []
+    for entry in components:
+        key = str(entry["key"])
+        if key not in badge:
+            continue
+        img, target = badge[key]
+        lines.append(f"[![{key}]({img})]({target})")
+    return "\n".join(lines)
+
+
 def render_source_of_truth_table(manifest: dict[str, object]) -> str:
     """Render the full canonical status map table on ``source-of-truth.md``.
 
@@ -377,15 +431,38 @@ def _render_page(page: Path, key: str, body: str) -> tuple[str, str]:
     return current, rendered
 
 
+def _render_page_blocks(
+    page: Path, blocks: list[tuple[str, str]]
+) -> tuple[str, str]:
+    """Return ``(current, rendered)`` for a page carrying multiple generated blocks.
+
+    ``blocks`` is a list of ``(key, body)`` pairs — one per BEGIN/END marker
+    pair on the page. Splices are applied sequentially against the running
+    rendered string so that a page like docs/src/README.md can carry both the
+    landing-badges block and the sdks-and-components block without one
+    overwriting the other.
+    """
+    current = page.read_text(encoding="utf-8")
+    rendered = current
+    for key, body in blocks:
+        rendered = splice(rendered, _marker(key, "BEGIN"), _marker(key, "END"), body)
+    return current, rendered
+
+
 def render_all(manifest: dict[str, object]) -> list[tuple[Path, str, str]]:
     """Return ``(path, current, rendered)`` for every managed page."""
     return [
         (
             README_PATH,
-            *_render_page(
+            *_render_page_blocks(
                 README_PATH,
-                "sdks-and-components",
-                render_readme_components_table(manifest),
+                [
+                    ("landing-badges", render_landing_badges(manifest)),
+                    (
+                        "sdks-and-components",
+                        render_readme_components_table(manifest),
+                    ),
+                ],
             ),
         ),
         (
