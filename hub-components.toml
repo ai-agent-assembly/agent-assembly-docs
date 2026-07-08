@@ -118,3 +118,16 @@ standalone_url = "https://github.com/ai-agent-assembly/agent-assembly-examples"
 generator = ""
 aggregated = false
 channel_label = "repo README"
+
+[[component]]
+key = "homebrew-tap"
+display_name = "Homebrew / install channel"
+short_name = "Homebrew / install channel"
+repo = "ai-agent-assembly/homebrew-tap"
+repo_label = "homebrew-tap"
+docs_path = ""
+docs_label = ""
+standalone_url = "https://github.com/ai-agent-assembly/homebrew-tap"
+generator = ""
+aggregated = false
+channel_label = "repo README"
