@@ -271,10 +271,10 @@ def render_landing_badges(manifest: dict[str, object]) -> str:
     ``hub-components.toml`` will not silently gain a badge until an entry is
     added below.
 
-    The license badge is not driven by the manifest (it links at the hub's own
-    repository, not a component) and stays hand-authored outside the block.
-
-    Rendered output is byte-identical to the current hand-authored badges.
+    The license badge points at the hub's own repository (not a component) and
+    is emitted here as a literal trailing line. It sits inside the block so the
+    five badges stay in a single Markdown paragraph and render as one contiguous
+    row of images, matching the current page byte-for-byte.
     """
     components = _aggregated(_components(manifest))
     # Per-component badge image URL and target URL. Keys must match the
@@ -310,6 +310,13 @@ def render_landing_badges(manifest: dict[str, object]) -> str:
             continue
         img, target = badge[key]
         lines.append(f"[![{key}]({img})]({target})")
+    # Trailing hub-owned license badge — kept inside the block as a literal
+    # line so all five badges stay in one Markdown paragraph.
+    lines.append(
+        "[![license]("
+        "https://img.shields.io/badge/license-Apache--2.0-green)]("
+        "https://github.com/ai-agent-assembly/agent-assembly-docs/blob/main/LICENSE)"
+    )
     return "\n".join(lines)
 
 
