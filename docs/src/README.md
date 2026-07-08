@@ -41,12 +41,20 @@ This hub is the central entry point for AI Agent Assembly documentation. To inst
 
 Every module's docs are **aggregated into this hub** under a stable subpath (`/core/`, `/python-sdk/`, `/node-sdk/`, `/go-sdk/`), so you can read and search all of them from one place. The standalone, per-version sites remain available for release-specific (mike / Docusaurus / Hugo channel) browsing.
 
+<!-- BEGIN GENERATED:hub-components:sdks-and-components -->
+
 | Component | On this hub | Standalone site |
 |---|---|---|
 | Core (monorepo) | [/core/](/core/) | [core docs](https://docs.agent-assembly.com/core/) |
 | Python SDK | [/python-sdk/](/python-sdk/) | <https://docs.agent-assembly.com/python-sdk/> |
 | Node SDK | [/node-sdk/](/node-sdk/) | <https://docs.agent-assembly.com/node-sdk/> |
 | Go SDK | [/go-sdk/](/go-sdk/) | <https://docs.agent-assembly.com/go-sdk/> |
+
+<!-- END GENERATED:hub-components:sdks-and-components -->
+
+<!-- The table above is generated from hub-components.toml by
+     docs/scripts/generate_hub_components.py — do not hand-edit between the
+     BEGIN/END GENERATED markers. See AAASM-4313. -->
 
 ## Runnable examples
 
