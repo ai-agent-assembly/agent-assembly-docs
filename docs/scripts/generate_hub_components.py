@@ -260,21 +260,24 @@ def render_aggregation_table(manifest: dict[str, object]) -> str:
 
 
 def render_source_of_truth_table(manifest: dict[str, object]) -> str:
-    """Render the component rows of ``source-of-truth.md``'s canonical status map.
+    """Render the full canonical status map table on ``source-of-truth.md``.
 
     The status map is a 5-column Markdown table (Area | Owning repository |
-    Visibility | Maturity | Where to read). The rows for hub components — Core,
-    the three SDKs, runnable examples, and the Homebrew tap — are rendered from
-    the manifest here; the remaining hand-authored rows (Specs, Releases, Cloud,
-    Enterprise, Operations) stay outside the generated block because they either
-    reference the monorepo indirectly or carry Private/Planned status not
-    represented in the component schema.
+    Visibility | Maturity | Where to read). Its first block of rows lists the
+    hub components — Core, the three SDKs, runnable examples, and the Homebrew
+    tap — and is driven by ``hub-components.toml``. The remaining rows (Specs,
+    Releases, Cloud, Enterprise, Operations) are non-component narrative areas
+    that reference the monorepo indirectly or carry Private/Planned status not
+    represented in the component schema; they are emitted verbatim so that the
+    single visible table on the page stays intact.
 
-    Every rendered row uses the same Visibility (🟢 Public) and Maturity
-    (🧪 Release candidate) tags: the manifest only lists public, release-track
-    components. Per-row Area phrasing and the "Where to read" cell vary
+    The whole table — header, separator, component rows, and narrative rows —
+    is emitted here so the BEGIN/END GENERATED markers can wrap the table as a
+    block (a Markdown table split by an HTML-comment marker inside would be
+    parsed as two separate blocks and stop rendering as a table). Per-row Area
+    phrasing and the "Where to read" cell for component rows vary
     per-component, so both are looked up by ``key`` from small tables here.
-    The result is byte-identical to the hand-authored rows this block replaces.
+    The result is byte-identical to the hand-authored table it replaces.
     """
     components = _components(manifest)
     # Per-component overrides. Only components with rows in this page appear.
@@ -296,7 +299,10 @@ def render_source_of_truth_table(manifest: dict[str, object]) -> str:
         "go-sdk": "go-sdk docs",
     }
 
-    lines: list[str] = []
+    lines: list[str] = [
+        "| Area | Owning repository | Visibility | Maturity | Where to read |",
+        "|---|---|---|---|---|",
+    ]
     for entry in components:
         key = str(entry["key"])
         if key not in area_label:
@@ -317,6 +323,30 @@ def render_source_of_truth_table(manifest: dict[str, object]) -> str:
             f"| {area} | {repo_cell} | 🟢 Public | 🧪 Release candidate | "
             f"{where_cell} |"
         )
+    # Non-component narrative rows — kept as literal lines because they either
+    # reference the monorepo indirectly ("agent-assembly monorepo") or describe
+    # areas (Cloud, Enterprise, Operations) that are Private/internal and/or
+    # Planned rather than public and release-track. Editing these lines is a
+    # hand-edit in this file (they are not driven by hub-components.toml).
+    lines.extend(
+        [
+            "| **Specs** (protocol & policy spec) | "
+            "[`agent-assembly`](https://github.com/ai-agent-assembly/agent-assembly)"
+            " monorepo | 🟢 Public | 🧪 Release candidate | "
+            "[Policy reference](policy-reference.md) · core docs |",
+            "| **Releases** (versions & compatibility) | "
+            "this hub + each component's tags | 🟢 Public | "
+            "🧪 Release candidate | [Compatibility matrix](compatibility.md) |",
+            "| **Cloud** (SaaS control plane) | `agent-assembly-cloud` | "
+            "🔒 Private / internal | 🗺️ Planned | "
+            "[Cloud deployment](cloud-deployment.md) |",
+            "| **Enterprise** (SSO, SCIM, advanced audit) | "
+            "`agent-assembly-enterprise` | 🔒 Private / internal | "
+            "🗺️ Planned | [Open core boundary](open-core-boundary.md) |",
+            "| **Operations** (running & onboarding) | this hub | "
+            "🟢 Public | 🗺️ Planned | [Quick start (SaaS)](quickstart-saas.md) |",
+        ]
+    )
     return "\n".join(lines)
 
 
