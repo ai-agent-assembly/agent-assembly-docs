@@ -38,6 +38,6 @@ though each module was built by a different generator.
 
 The machine-readable module registry, the build/copy contract, the per-generator
 base-URL strategy, and the versioning decision are documented in
-[`AGGREGATION.md`](https://github.com/ai-agent-assembly/agent-assembly-docs/blob/main/AGGREGATION.md)
+[`AGGREGATION.md`](https://github.com/ai-agent-assembly/docs/blob/main/AGGREGATION.md)
 at the repository root, and implemented by `docs/scripts/aggregate.sh` +
 `.github/workflows/aggregate.yml`.

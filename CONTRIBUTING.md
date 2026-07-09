@@ -29,7 +29,7 @@ Optional, for the validation checks below:
 ## Directory structure
 
 ```text
-agent-assembly-docs/
+docs/
 ├── README.md                 # this repo, at a glance (you are reading its sibling)
 ├── CONTRIBUTING.md           # this file
 ├── compatibility.toml        # source of truth for the compatibility matrix
@@ -217,7 +217,7 @@ fire the dispatch event yourself against this repo:
 
 ```sh
 # PLANNED — not yet wired up (AAASM-302). Documented here so the flow is clear.
-gh api repos/ai-agent-assembly/agent-assembly-docs/dispatches \
+gh api repos/ai-agent-assembly/docs/dispatches \
   -f event_type=docs-release \
   -f client_payload[repo]=python-sdk \
   -f client_payload[tag]=v0.3.0

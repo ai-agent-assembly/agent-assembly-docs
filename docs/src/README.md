@@ -6,7 +6,7 @@
 [![python-sdk](https://img.shields.io/pypi/v/agent-assembly?label=python-sdk&logo=pypi)](https://github.com/ai-agent-assembly/python-sdk)
 [![node-sdk](https://img.shields.io/npm/v/@agent-assembly/sdk/rc?label=node-sdk&logo=npm)](https://github.com/ai-agent-assembly/node-sdk)
 [![go-sdk](https://img.shields.io/github/v/tag/ai-agent-assembly/go-sdk?sort=semver&label=go-sdk&logo=go&color=3b82f6)](https://github.com/ai-agent-assembly/go-sdk/tags)
-[![license](https://img.shields.io/badge/license-Apache--2.0-green)](https://github.com/ai-agent-assembly/agent-assembly-docs/blob/main/LICENSE)
+[![license](https://img.shields.io/badge/license-Apache--2.0-green)](https://github.com/ai-agent-assembly/docs/blob/main/LICENSE)
 
 <!-- END GENERATED:hub-components:landing-badges -->
 
@@ -68,7 +68,7 @@ Every module's docs are **aggregated into this hub** under a stable subpath (`/c
 ## Runnable examples
 
 Prefer learning by running code? The
-[**agent-assembly-examples**](https://github.com/ai-agent-assembly/agent-assembly-examples)
+[**agent-assembly-examples**](https://github.com/ai-agent-assembly/examples)
 repo collects small, framework-specific Agent Assembly examples for Python,
 Node.js/TypeScript, Go, policy enforcement, approvals, audit, trace, and runtime
 workflows. Clone it and run an example end to end to see governance in action
