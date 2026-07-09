@@ -398,7 +398,7 @@ def render_source_of_truth_table(manifest: dict[str, object]) -> str:
             "| **Releases** (versions & compatibility) | "
             "this hub + each component's tags | 🟢 Public | "
             "🧪 Release candidate | [Compatibility matrix](compatibility.md) |",
-            "| **Cloud** (SaaS control plane) | `agent-assembly-cloud` | "
+            "| **Cloud** (SaaS control plane) | `cloud` | "
             "🔒 Private / internal | 🗺️ Planned | "
             "[Cloud deployment](cloud-deployment.md) |",
             "| **Enterprise** (SSO, SCIM, advanced audit) | "
