@@ -2,7 +2,7 @@
 
 > The centralized, evergreen documentation hub for AI Agent Assembly — the governance-native runtime for AI agents.
 
-[![docs](https://img.shields.io/github/actions/workflow/status/ai-agent-assembly/agent-assembly-docs/aggregate.yml?branch=main&logo=githubactions&logoColor=white&label=docs)](https://github.com/ai-agent-assembly/agent-assembly-docs/actions/workflows/aggregate.yml)
+[![docs](https://img.shields.io/github/actions/workflow/status/ai-agent-assembly/docs/aggregate.yml?branch=main&logo=githubactions&logoColor=white&label=docs)](https://github.com/ai-agent-assembly/docs/actions/workflows/aggregate.yml)
 [![live docs](https://img.shields.io/badge/docs-live-3b82f6?logo=readthedocs&logoColor=white)](https://docs.agent-assembly.com/)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?logo=apache)](LICENSE)
 
@@ -55,7 +55,7 @@ status map for every area below.
 | Python SDK | [python-sdk](https://github.com/ai-agent-assembly/python-sdk) | <https://docs.agent-assembly.com/python-sdk/> |
 | Node SDK | [node-sdk](https://github.com/ai-agent-assembly/node-sdk) | <https://docs.agent-assembly.com/node-sdk/> |
 | Go SDK | [go-sdk](https://github.com/ai-agent-assembly/go-sdk) | <https://docs.agent-assembly.com/go-sdk/> |
-| Runnable examples | [agent-assembly-examples](https://github.com/ai-agent-assembly/agent-assembly-examples) | repo `README` |
+| Runnable examples | [agent-assembly-examples](https://github.com/ai-agent-assembly/examples) | repo `README` |
 | Homebrew / install | [homebrew-tap](https://github.com/ai-agent-assembly/homebrew-tap) | repo `README` |
 | Specs (protocol & policy) | in the `agent-assembly` monorepo | [Policy reference](docs/src/policy-reference.md) |
 | Releases & compatibility | this hub + component tags | [Compatibility matrix](docs/src/compatibility.md) |

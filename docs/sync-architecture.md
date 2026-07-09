@@ -72,7 +72,7 @@ Each source repo (core + SDKs) fires a [`repository_dispatch`](https://docs.gith
 event at this repo on release, from its own CI:
 
 ```sh
-gh api repos/ai-agent-assembly/agent-assembly-docs/dispatches \
+gh api repos/ai-agent-assembly/docs/dispatches \
   -f event_type=docs-release \
   -f client_payload[repo]=python-sdk \
   -f client_payload[tag]=v0.3.0

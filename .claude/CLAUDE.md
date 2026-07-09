@@ -84,7 +84,7 @@ and no lefthook in this repo; the only local gate is `mdbook build` + the matrix
 
 - **Default branch is `main`** (not `master` like the core monorepo). Branch off and
   PR against `main`.
-- **`origin` is canonical** — it points to `AI-agent-assembly/agent-assembly-docs`
+- **`origin` is canonical** — it points to `ai-agent-assembly/docs`
   (the org, accessed via the `ai-agent-assembly` → `AI-agent-assembly` case alias).
   Confirm with `git remote -v`; scope changes against `origin/main`, which is often
   ahead of a stale checkout.
@@ -103,7 +103,7 @@ and no lefthook in this repo; the only local gate is `mdbook build` + the matrix
 ## Project policy
 
 - **JIRA:** project AAASM; set **Component** (`customfield_10041`) to the repo
-  (`AI-agent-assembly/agent-assembly-docs`); Team (`customfield_10001`) = Pioneer.
+  (`ai-agent-assembly/docs`); Team (`customfield_10001`) = Pioneer.
   Epic → Story → Subtask (one Subtask ≈ one commit) + a `Verify …` subtask per Story.
 - **Self-hosted deployment is out of scope** product-wide — the docs are **SaaS-only**.
   Don't add Helm/Terraform/air-gapped/migration instructions even if the spec mentions

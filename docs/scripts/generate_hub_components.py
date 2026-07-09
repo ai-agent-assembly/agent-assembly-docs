@@ -315,7 +315,7 @@ def render_landing_badges(manifest: dict[str, object]) -> str:
     lines.append(
         "[![license]("
         "https://img.shields.io/badge/license-Apache--2.0-green)]("
-        "https://github.com/ai-agent-assembly/agent-assembly-docs/blob/main/LICENSE)"
+        "https://github.com/ai-agent-assembly/docs/blob/main/LICENSE)"
     )
     return "\n".join(lines)
 
