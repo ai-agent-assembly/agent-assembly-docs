@@ -84,6 +84,12 @@ AI Agent Assembly enforces governance through three layers. You can deploy them 
 
 All three layers report to the **gateway**, which evaluates policy and tracks per-team budgets.
 
+<div class="aa-cta-next">
+  <span class="aa-cta-next__label">Next step</span>
+  <a href="quickstart-saas.md" data-track-event="docs_quickstart_click" data-cta-location="body">Continue to the Quick start →</a>
+  <p>Instrument a LangChain agent in under five minutes.</p>
+</div>
+
 ---
 
 *Last reviewed: 2026-06-27 — AI Agent Assembly Team*
