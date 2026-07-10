@@ -37,6 +37,7 @@ Every area below is tagged with one visibility label and one maturity label.
 | **Go SDK** | [`go-sdk`](https://github.com/ai-agent-assembly/go-sdk) | 🟢 Public | 🧪 Release candidate | [go-sdk docs](https://ai-agent-assembly.github.io/go-sdk/) |
 | **Runnable examples** | [`agent-assembly-examples`](https://github.com/ai-agent-assembly/agent-assembly-examples) | 🟢 Public | 🧪 Release candidate | repo `README` |
 | **Homebrew / install channel** | [`homebrew-tap`](https://github.com/ai-agent-assembly/homebrew-tap) | 🟢 Public | 🧪 Release candidate | repo `README` |
+| **Arena** (cross-framework governance trials) | [`arena`](https://github.com/ai-agent-assembly/arena) | 🟢 Public | 🗺️ Planned | [Arena overview](arena/overview.md) |
 | **Specs** (protocol & policy spec) | [`agent-assembly`](https://github.com/ai-agent-assembly/agent-assembly) monorepo | 🟢 Public | 🧪 Release candidate | [Policy reference](policy-reference.md) · core docs |
 | **Releases** (versions & compatibility) | this hub + each component's tags | 🟢 Public | 🧪 Release candidate | [Compatibility matrix](compatibility.md) |
 | **Cloud** (SaaS control plane) | `agent-assembly-cloud` | 🔒 Private / internal | 🗺️ Planned | [Cloud deployment](cloud-deployment.md) |
@@ -59,4 +60,4 @@ full split.
 
 ---
 
-*Last reviewed: 2026-06-27 — AI Agent Assembly Team*
+*Last reviewed: 2026-07-10 — AI Agent Assembly Team*
