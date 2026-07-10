@@ -51,8 +51,8 @@ Every area below is tagged with one visibility label and one maturity label.
 <!-- The table above is generated from hub-components.toml by
      docs/scripts/generate_hub_components.py — do not hand-edit between the
      BEGIN/END GENERATED markers. Component rows come from the manifest;
-     the non-component rows (Specs, Releases, Cloud, Enterprise, Operations)
-     are literal in the generator itself. See AAASM-4313. -->
+     the non-component rows (Arena, Specs, Releases, Cloud, Enterprise,
+     Operations) are literal in the generator itself. See AAASM-4313. -->
 
 > The **protocol specification stays in the `agent-assembly` monorepo** by project
 > policy. The reserved `agent-assembly-spec` repository is intentionally not used

@@ -131,3 +131,16 @@ standalone_url = "https://github.com/ai-agent-assembly/homebrew-tap"
 generator = ""
 aggregated = false
 channel_label = "repo README"
+
+[[component]]
+key = "arena"
+display_name = "Arena"
+short_name = "Arena"
+repo = "ai-agent-assembly/arena"
+repo_label = "arena"
+docs_path = ""
+docs_label = ""
+standalone_url = "https://github.com/ai-agent-assembly/arena"
+generator = ""
+aggregated = false
+channel_label = "hub-native pages under docs/src/arena/"

@@ -326,11 +326,16 @@ def render_source_of_truth_table(manifest: dict[str, object]) -> str:
     The status map is a 5-column Markdown table (Area | Owning repository |
     Visibility | Maturity | Where to read). Its first block of rows lists the
     hub components — Core, the three SDKs, runnable examples, and the Homebrew
-    tap — and is driven by ``hub-components.toml``. The remaining rows (Specs,
-    Releases, Cloud, Enterprise, Operations) are non-component narrative areas
-    that reference the monorepo indirectly or carry Private/Planned status not
-    represented in the component schema; they are emitted verbatim so that the
-    single visible table on the page stays intact.
+    tap — and is driven by ``hub-components.toml``. The remaining rows (Arena,
+    Specs, Releases, Cloud, Enterprise, Operations) are non-component narrative
+    areas that reference the monorepo indirectly or carry Private/Planned status
+    not represented in the component schema; they are emitted verbatim so that
+    the single visible table on the page stays intact. Arena specifically has a
+    manifest entry (for inventory/consistency with other non-aggregated
+    pointers) but is rendered here rather than via the component-row path
+    because its Maturity is Planned, not Release candidate, and its "Where to
+    read" cell links to a hub-native page (``arena/overview.md``) rather than a
+    standalone URL or repo README.
 
     The whole table — header, separator, component rows, and narrative rows —
     is emitted here so the BEGIN/END GENERATED markers can wrap the table as a
@@ -386,11 +391,15 @@ def render_source_of_truth_table(manifest: dict[str, object]) -> str:
         )
     # Non-component narrative rows — kept as literal lines because they either
     # reference the monorepo indirectly ("agent-assembly monorepo") or describe
-    # areas (Cloud, Enterprise, Operations) that are Private/internal and/or
-    # Planned rather than public and release-track. Editing these lines is a
-    # hand-edit in this file (they are not driven by hub-components.toml).
+    # areas (Arena, Cloud, Enterprise, Operations) that are Private/internal
+    # and/or Planned rather than public and release-track. Editing these lines
+    # is a hand-edit in this file (they are not driven by hub-components.toml).
     lines.extend(
         [
+            "| **Arena** (cross-framework governance trials) | "
+            "[`arena`](https://github.com/ai-agent-assembly/arena) | "
+            "🟢 Public | 🗺️ Planned | "
+            "[Arena overview](arena/overview.md) |",
             "| **Specs** (protocol & policy spec) | "
             "[`agent-assembly`](https://github.com/ai-agent-assembly/agent-assembly)"
             " monorepo | 🟢 Public | 🧪 Release candidate | "
