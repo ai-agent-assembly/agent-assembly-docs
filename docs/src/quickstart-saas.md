@@ -19,7 +19,7 @@ This end-to-end example takes a LangChain agent from zero to fully governed in u
 ### Step 1 — Install packages
 
 ```bash
-pip install agent-assembly --pre langchain langchain-openai langchain-core
+pip install agent-assembly --pre langchain langchain-classic langchain-openai langchain-core
 ```
 
 ### Step 2 — Set credentials
