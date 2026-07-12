@@ -15,6 +15,14 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  # Source repos (core, python-sdk, node-sdk, go-sdk, arena, ...) publish new
+  # content straight to their own gh-pages branches on their own schedules,
+  # which never touches this repo, so push/pull_request/workflow_dispatch
+  # alone leave the hub re-aggregating only when something unrelated happens
+  # to land on docs' own main (AAASM-4508). Poll on a fixed cadence so the
+  # published hub can't silently go stale for longer than ~30 minutes.
+  schedule:
+    - cron: "*/30 * * * *"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
