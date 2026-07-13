@@ -10,10 +10,13 @@ Today each module's documentation is served from its own GitHub Pages site:
 | `https://ai-agent-assembly.github.io/node-sdk/` | `https://docs.agent-assembly.com/node-sdk/` |
 | `https://ai-agent-assembly.github.io/go-sdk/` | `https://docs.agent-assembly.com/go-sdk/` |
 
-This document is the plan for pointing those legacy sites at the new aggregated
-hub once `docs.agent-assembly.com` is live. **The live cut-over is owner-gated**
-(it needs the custom domain attached and changes pushed into the four SDK repos,
-which is out of scope for this hub-only PR).
+This document was the plan for pointing those legacy sites at the new aggregated
+hub once `docs.agent-assembly.com` went live. **The hub is now live** —
+`docs.agent-assembly.com` and its `/python-sdk/`, `/node-sdk/`, and `/go-sdk/`
+subpaths are confirmed resolving with HTTP 200 (checked 2026-07-13), so the
+DNS/custom-domain step is done. What remains **owner-gated** is pushing the
+`rel=canonical` + redirect-stub changes into the four SDK repos (out of scope
+for this hub-only PR); see the rollout order below.
 
 ## Strategy: `rel=canonical` + redirect stub, not hard deletion
 
@@ -56,8 +59,9 @@ Example stub (no-JS fallback + JS redirect, mirroring the existing module stubs)
 Roll out **lowest-risk first**, verifying the hub serves each module before
 redirecting that module's legacy site:
 
-1. **Hub goes live** at `docs.agent-assembly.com` (this PR's workflow + owner
-   attaches DNS). Verify all five subpaths render and unified search works.
+1. **Hub is live** at `docs.agent-assembly.com` — DNS/custom domain is attached
+   and confirmed serving (root plus the `/python-sdk/`, `/node-sdk/`, and
+   `/go-sdk/` subpaths return HTTP 200 as of 2026-07-13). This step is done.
 2. **`agent-assembly-docs`** legacy site (`…github.io/agent-assembly-docs/`) →
    redirect to `docs.agent-assembly.com/` first. It is the safest: same repo, same
    content, and the hub *is* its successor.
@@ -83,7 +87,9 @@ hub itself already steers readers to the canonical subpaths.
 
 ## Owner-gated items
 
-- Attaching `docs.agent-assembly.com` DNS + GitHub Pages custom domain.
+- ~~Attaching `docs.agent-assembly.com` DNS + GitHub Pages custom domain.~~ **Done**
+  — the hub is live at `docs.agent-assembly.com` (confirmed 2026-07-13).
 - Adding `rel=canonical` + redirect stubs **inside the four SDK repos** (one small
-  PR per repo, per the rollout order above).
-- Deciding the deprecation window before any legacy site is taken down.
+  PR per repo, per the rollout order above) — still pending.
+- Deciding the deprecation window before any legacy site is taken down — still
+  pending.
