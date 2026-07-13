@@ -18,9 +18,7 @@ This end-to-end example takes a LangChain agent from zero to fully governed in u
 
 ### Step 1 — Install packages
 
-```bash
-pip install agent-assembly --pre langchain langchain-classic langchain-openai langchain-core
-```
+Install the Python SDK — see the [Python SDK quick start](https://docs.agent-assembly.com/python-sdk/) for the current install command — plus the LangChain packages this walkthrough uses: `langchain`, `langchain-classic`, `langchain-openai`, `langchain-core`.
 
 ### Step 2 — Set credentials
 
@@ -121,13 +119,7 @@ In the console, open **Policies → New Policy** and apply the starter template 
 2. Verify your email address.
 3. On the **Workspace Setup** page, enter a workspace name (e.g., `acme-ai-ops`) and select your primary region.
 4. Copy your **Workspace ID** and generate an **API Key** under **Settings → API Keys**.
-5. Install the SDK:
-
-```bash
-pip install agent-assembly --pre    # Python (pre-release line)
-pnpm add @agent-assembly/sdk@rc   # TypeScript (pre-release line)
-go get github.com/ai-agent-assembly/go-sdk@latest  # Go
-```
+5. Install the SDK for your language — see the [Python SDK quick start](https://docs.agent-assembly.com/python-sdk/), [Node SDK quick start](https://docs.agent-assembly.com/node-sdk/), or [Go SDK quick start](https://docs.agent-assembly.com/go-sdk/).
 
 6. Set credentials:
 
