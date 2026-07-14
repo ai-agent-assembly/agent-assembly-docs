@@ -19,8 +19,15 @@ on:
   # content straight to their own gh-pages branches on their own schedules,
   # which never touches this repo, so push/pull_request/workflow_dispatch
   # alone leave the hub re-aggregating only when something unrelated happens
-  # to land on docs' own main (AAASM-4508). Poll on a fixed cadence so the
-  # published hub can't silently go stale for longer than ~30 minutes.
+  # to land on docs' own main (AAASM-4508). Poll on a fixed cadence for
+  # best-effort periodic self-healing, rather than leaving staleness
+  # unbounded. GitHub Actions `schedule` triggers are best-effort, not
+  # guaranteed-exact: observed real-world delays between runs have reached
+  # several hours, not the 30-minute cadence configured below (AAASM-4508
+  # follow-up, 2026-07-14). If this data path ever needs a hard freshness
+  # SLA, revisit an event-driven `repository_dispatch` or GitHub App
+  # trigger instead — deliberately not done here to avoid a new cross-repo
+  # credential.
   schedule:
     - cron: "*/30 * * * *"
 
