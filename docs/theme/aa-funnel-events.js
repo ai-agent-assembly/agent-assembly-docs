@@ -133,7 +133,6 @@
     }
     if (/agent-assembly\.com\/early-access/.test(a.href)) {
       fire('cta_cloud_early_access_click', params);
-      return;
     }
   }
 
