@@ -1,6 +1,6 @@
 # Why AI Agent Assembly?
 
-**AI Agent Assembly is a security and governance control for AI agents** — a runtime that sits in the agent's action path and *enforces* policy, blocking unsafe tool calls, network egress, and budget overruns *before* they execute. Think of it as a security checkpoint in front of every agent action, not a dashboard that reports on actions after they happen. That category distinction is what this comparison is about.
+**AI Agent Assembly is a governance layer for AI agents** — a control that sits in the agent's action path and *enforces* policy, tracks cost, and intercepts unsafe actions (unsafe tool calls, network egress, and budget overruns) *before* they execute. Think of it as a security checkpoint in front of every agent action, not a dashboard that reports on actions after they happen. That category distinction is what this comparison is about.
 
 This page helps readers see where AI Agent Assembly fits next to other tools in the AI governance and observability space. All competitor data is taken from each vendor's public documentation as of 2026-05-05.
 

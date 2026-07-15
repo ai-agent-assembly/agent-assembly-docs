@@ -86,6 +86,8 @@ AI Agent Assembly enforces governance through three layers. You can deploy them 
 
 All three layers report to the **gateway**, which evaluates policy and tracks per-team budgets.
 
+These three interception points describe *where* enforcement happens; they sit inside the **Boundary** layer of the broader [five-layer defense model](security-model.md), which describes *what* is protected. Same system, two views.
+
 <div class="aa-cta-next">
   <span class="aa-cta-next__label">Next step</span>
   <a href="https://github.com/ai-agent-assembly/examples?utm_source=docs&amp;utm_medium=docs_link&amp;utm_campaign=oss_install&amp;utm_content=landing_next_step" data-cta-location="body" rel="noopener">Run a governed example →</a>
