@@ -55,11 +55,11 @@
     // SDK page views — the aggregated module docs live under /python-sdk/,
     // /node-sdk/, /go-sdk/. Fire once when the reader lands on any page
     // under that subpath so the report can attribute intent by language.
-    if (/^\/python-sdk\//.test(path)) {
+    if (path.startsWith('/python-sdk/')) {
       fire('docs_sdk_python_view', { sdk: 'python' });
-    } else if (/^\/node-sdk\//.test(path)) {
+    } else if (path.startsWith('/node-sdk/')) {
       fire('docs_sdk_node_view', { sdk: 'node' });
-    } else if (/^\/go-sdk\//.test(path)) {
+    } else if (path.startsWith('/go-sdk/')) {
       fire('docs_sdk_go_view', { sdk: 'go' });
     }
   }
