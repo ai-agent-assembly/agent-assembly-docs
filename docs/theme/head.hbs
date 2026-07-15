@@ -386,3 +386,92 @@
     } else { init(); }
   })();
 </script>
+
+<!-- Language switcher + zh-Hant draft banner (AAASM-4697).
+     Localization is produced by the mdbook-i18n-helpers gettext workflow (see
+     docs/book.toml): the aggregation pipeline (docs/scripts/aggregate.sh)
+     builds English at the site root and the zh-Hant catalog under /zh-Hant/.
+     mdBook injects the CURRENT language here via {{ language }} ('en' at root,
+     'zh-Hant' under /zh-Hant/) and the book-relative root via {{ path_to_root }},
+     so the switcher maps the current page to its counterpart in the other
+     language WITHOUT any hard-coded page list: English page  <ROOT>/<page>  <->
+     zh-Hant page  <ROOT>/zh-Hant/<page>. Both languages ship every page (the
+     gettext build falls back to English for untranslated strings), so the
+     counterpart URL always exists on the deployed hub. When the hub is built
+     standalone as English-only (no /zh-Hant/ tree), the switcher still renders;
+     its 繁體中文 link simply points where the aggregated build would place it. -->
+<style>
+  .aa-langswitch { display: inline-flex; gap: .35rem; align-items: center; margin-left: .35rem;
+    font: 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .aa-langswitch a { color: inherit; text-decoration: none; padding: .25rem .5rem; border-radius: 6px;
+    border: 1px solid transparent; opacity: .8; }
+  .aa-langswitch a:hover { border-color: rgba(127,127,127,.4); opacity: 1; }
+  .aa-langswitch a[aria-current="true"] { font-weight: 700; opacity: 1; border-color: rgba(127,127,127,.4); }
+  .aa-draft-banner { margin: 0 0 1rem; padding: .6rem .85rem; border-radius: 8px;
+    border: 1px solid #d9a441; background: rgba(217,164,65,.12); color: inherit;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  .aa-draft-banner strong { font-weight: 700; }
+</style>
+<script>
+  (function () {
+    var LANG = '{{ language }}';           // 'en' at the site root, 'zh-Hant' under /zh-Hant/
+    var ROOT = '{{ path_to_root }}';       // book-relative root of the CURRENT language build
+    // Pages that have an actual zh-Hant first-pass translation (everything else
+    // renders as English fallback, so no draft banner for those).
+    var TRANSLATED = { 'index.html': 1, 'faq.html': 1, 'glossary.html': 1, 'quickstart-saas.html': 1 };
+
+    function urls() {
+      var bookRoot = new URL(ROOT || './', location.href);       // absolute root of this book
+      var pageRel = location.pathname;
+      if (pageRel.indexOf(bookRoot.pathname) === 0) { pageRel = pageRel.slice(bookRoot.pathname.length); }
+      var siteRoot = (LANG === 'zh-Hant') ? new URL('../', bookRoot) : bookRoot;
+      var base = pageRel.split('/').pop() || 'index.html';
+      return {
+        base: base,
+        en: new URL(pageRel, siteRoot).href,
+        zh: new URL('zh-Hant/' + pageRel, siteRoot).href
+      };
+    }
+
+    function switcher() {
+      var bar = document.querySelector('.menu-bar .right-buttons') || document.querySelector('.menu-bar');
+      if (!bar || document.querySelector('.aa-langswitch')) { return; }
+      var u = urls();
+      var wrap = document.createElement('div');
+      wrap.className = 'aa-langswitch';
+      wrap.setAttribute('role', 'group');
+      wrap.setAttribute('aria-label', 'Language / 語言');
+      function link(href, label, current) {
+        var a = document.createElement('a');
+        a.href = href; a.textContent = label; a.setAttribute('lang', label === 'English' ? 'en' : 'zh-Hant');
+        if (current) { a.setAttribute('aria-current', 'true'); }
+        return a;
+      }
+      wrap.appendChild(link(u.en, 'English', LANG !== 'zh-Hant'));
+      wrap.appendChild(link(u.zh, '繁體中文', LANG === 'zh-Hant'));
+      bar.appendChild(wrap);
+    }
+
+    function draftBanner() {
+      if (LANG !== 'zh-Hant') { return; }
+      var u = urls();
+      if (!TRANSLATED[u.base]) { return; }
+      var content = document.querySelector('#content main') || document.querySelector('main');
+      if (!content || document.querySelector('.aa-draft-banner')) { return; }
+      var box = document.createElement('div');
+      box.className = 'aa-draft-banner';
+      box.setAttribute('role', 'note');
+      box.setAttribute('lang', 'zh-Hant');
+      var s = document.createElement('strong');
+      s.textContent = '本頁為機器初翻，尚待母語審閱';
+      box.appendChild(s);
+      box.appendChild(document.createTextNode(' (draft — machine first-pass, pending native review)'));
+      content.insertBefore(box, content.firstChild);
+    }
+
+    function init() { switcher(); draftBanner(); }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else { init(); }
+  })();
+</script>

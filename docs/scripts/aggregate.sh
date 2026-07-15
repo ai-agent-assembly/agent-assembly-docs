@@ -317,6 +317,25 @@ PY
 log "Building hub mdBook -> public/ (root)"
 ( cd "$REPO_ROOT/docs" && mdbook build -d "$PUBLIC_DIR" )
 
+# ---- localized hub builds (AAASM-4697) ----
+# One extra mdBook build per translation language, into /<lang>/, using the
+# mdbook-i18n-helpers gettext preprocessor (book.toml) with the language
+# overridden via MDBOOK_BOOK__LANGUAGE. Untranslated strings fall back to the
+# English source, so every page exists under /<lang>/ and the theme's language
+# switcher (docs/theme/head.hbs) can always resolve a page's counterpart. Each
+# build cleans only its own /<lang>/ subdir, so it must run AFTER the root
+# English build (which cleans all of public/) and it never touches the module
+# subdirs. A language whose po/<lang>.po is absent is skipped, not fatal.
+HUB_LANGUAGES=("zh-Hant")
+for lang in "${HUB_LANGUAGES[@]}"; do
+  if [[ -f "$REPO_ROOT/docs/po/$lang.po" ]]; then
+    log "Building localized hub ($lang) -> public/$lang/"
+    ( cd "$REPO_ROOT/docs" && MDBOOK_BOOK__LANGUAGE="$lang" mdbook build -d "$PUBLIC_DIR/$lang" )
+  else
+    log "Skipping localized hub ($lang): docs/po/$lang.po not found"
+  fi
+done
+
 # ---- per-module builds ----
 COUNT="$(jq '.modules | length' "$REGISTRY")"
 for i in $(seq 0 $((COUNT - 1))); do
@@ -446,9 +465,19 @@ verify_archived_set go-sdk "$MODULES_DIR/go-sdk/expected-archived.txt"
 # version dirs aside, index, then restore them (AAASM-3753). Without this, every
 # query returns N near-duplicate hits — one per archived version of each page.
 PF_HOLD="$MODULES_DIR/.pagefind-hold"
+# Localized hub trees (AAASM-4697) are held in a SEPARATE dir so restore_pagefind's
+# `mod__sub` name parser (for module version dirs) never mis-restores them; these
+# are top-level /<lang>/ dirs, not /<module>/<version>/ dirs. Scoping them out keeps
+# the unified index English-only — the zh-Hant pages are largely English fallback,
+# so indexing them would double every hit.
+PF_HOLD_LANG="$MODULES_DIR/.pagefind-hold-lang"
 scope_pagefind() {       # move non-default version dirs of each module out of public/
-  rm -rf "$PF_HOLD"; mkdir -p "$PF_HOLD"
-  local d
+  rm -rf "$PF_HOLD" "$PF_HOLD_LANG"; mkdir -p "$PF_HOLD" "$PF_HOLD_LANG"
+  local d lang
+  # localized hub language dirs (keep the English root in the index only)
+  for lang in "${HUB_LANGUAGES[@]:-}"; do
+    [[ -n "$lang" && -d "$PUBLIC_DIR/$lang" ]] && mv "$PUBLIC_DIR/$lang" "$PF_HOLD_LANG/$lang"
+  done
   # core: archived tag dirs from the manifest (keep latest)
   if [[ -f "$PUBLIC_DIR/core/versions.json" ]]; then
     while IFS= read -r d; do
@@ -468,8 +497,17 @@ scope_pagefind() {       # move non-default version dirs of each module out of p
   fi
 }
 restore_pagefind() {     # move every held dir back to public/ (idempotent)
+  local p name mod sub lang
+  # localized hub trees first (top-level /<lang>/ dirs)
+  if [[ -d "$PF_HOLD_LANG" ]]; then
+    for p in "$PF_HOLD_LANG"/*; do
+      [[ -e "$p" ]] || continue
+      lang="$(basename "$p")"
+      mv "$p" "$PUBLIC_DIR/$lang"
+    done
+    rmdir "$PF_HOLD_LANG" 2>/dev/null || true
+  fi
   [[ -d "$PF_HOLD" ]] || return 0
-  local p name mod sub
   for p in "$PF_HOLD"/*; do
     [[ -e "$p" ]] || continue
     name="$(basename "$p")"; mod="${name%%__*}"; sub="${name#*__}"
