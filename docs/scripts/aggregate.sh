@@ -367,6 +367,14 @@ if [[ -f "$REPO_ROOT/_headers" ]]; then
   cp "$REPO_ROOT/_headers" "$PUBLIC_DIR/_headers"
 fi
 
+# ---- root favicon.ico so the browser's default /favicon.ico probe hits 200 (AAASM-4665) ----
+# The hub mdBook references its hashed theme/favicon.png, but browsers still request
+# /favicon.ico by convention — with nothing at the combined-site root that 404s in the
+# console. Publish an .ico at the root (next to CNAME/_headers) to satisfy that probe.
+if [[ -f "$REPO_ROOT/favicon.ico" ]]; then
+  cp "$REPO_ROOT/favicon.ico" "$PUBLIC_DIR/favicon.ico"
+fi
+
 # ---- verification: every expected output dir must exist & be non-empty ----
 log "Verifying aggregated output"
 verify_nonempty() {
