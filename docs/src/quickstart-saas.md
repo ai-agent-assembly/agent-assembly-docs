@@ -4,9 +4,9 @@
 
 This page takes you from zero to a governed AI agent. The fastest path is the LangChain walkthrough below, which works on any tier. If you want to pick a tier first, jump to [Pro](#pro-tier), [Business](#business-tier), or [Enterprise](#enterprise-tier).
 
-AI Agent Assembly is a SaaS-only product. Choose the tier that matches your team size and compliance needs, then connect your first agent.
+This page covers the managed SaaS onboarding. Choose the tier that matches your team size and compliance needs, then connect your first agent. (A limited-function stack is also self-hostable from the Apache-2.0 crates for local evaluation and development — see [Open core boundary](open-core-boundary.md).)
 
-> **Self-hosted deployment is not available.** There is no self-hosted, on-premises, or bring-your-own-infrastructure option. All governance, policy evaluation, and audit logging run in the AI Agent Assembly cloud. See [Open core boundary](open-core-boundary.md) for the licensing model.
+> **Full functionality is SaaS.** A limited-function stack is self-hostable from the Apache-2.0 crates for local evaluation and development; complete governance, policy evaluation, and audit logging at production grade run in the AI Agent Assembly cloud. See [Open core boundary](open-core-boundary.md) for the licensing model.
 
 ---
 
