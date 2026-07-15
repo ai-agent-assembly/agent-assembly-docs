@@ -31,7 +31,7 @@
     const params = baseParams();
     if (extra) {
       for (const k in extra) {
-        if (Object.prototype.hasOwnProperty.call(extra, k)) { params[k] = extra[k]; }
+        if (Object.hasOwn(extra, k)) { params[k] = extra[k]; }
       }
     }
     window.gtag('event', name, params);
