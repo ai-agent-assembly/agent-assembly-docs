@@ -89,8 +89,8 @@
     if (!text) { return 'other'; }
     const t = text.trim().toLowerCase();
     if (t.indexOf('brew ') === 0) { return 'brew'; }
-    if (t.indexOf('docker') !== -1) { return 'docker'; }
-    if (t.indexOf('curl ') === 0 || t.indexOf('curl -') !== -1) { return 'curl'; }
+    if (t.includes('docker')) { return 'docker'; }
+    if (t.indexOf('curl ') === 0 || t.includes('curl -')) { return 'curl'; }
     if (t.indexOf('pip ') === 0 || t.indexOf('pnpm ') === 0 || t.indexOf('npm ') === 0 ||
         t.indexOf('yarn ') === 0 || t.indexOf('go ') === 0 || t.indexOf('cargo ') === 0) {
       return 'source';
@@ -119,7 +119,7 @@
     }
 
     // Auto-classify by destination.
-    if (a.href.indexOf(GITHUB_EXAMPLES) !== -1) {
+    if (a.href.includes(GITHUB_EXAMPLES)) {
       fire('docs_examples_click', params);
       return;
     }
@@ -127,7 +127,7 @@
       fire('docs_github_issue_click', params);
       return;
     }
-    if (a.href.indexOf(GITHUB_CORE) !== -1) {
+    if (a.href.includes(GITHUB_CORE)) {
       fire('github_core_repo_click', params);
       return;
     }
