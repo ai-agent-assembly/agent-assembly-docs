@@ -5,7 +5,7 @@ AI Agent Assembly follows an **open-core** model. The line is simple:
 - **Enforcement is open source.** The interception layers, policy engine, SDK shims, and CLI are Apache-2.0. Anyone can read, audit, and contribute to them.
 - **Enterprise operations are commercial.** Features like SSO, SCIM, advanced audit, and multi-region data residency are covered by the AAA-Commercial license and available on paid SaaS tiers.
 
-> **Self-hosted deployment is not available.** Regardless of license, AI Agent Assembly is a SaaS-only product. The Apache-2.0 crates are open source for inspection, contribution, and SDK integration — not for self-hosted deployment. There is no bring-your-own-infrastructure path. See [Cloud Deployment](cloud-deployment.md) and [Quick Start (SaaS)](quickstart-saas.md) for the available onboarding paths.
+> **A limited-function OSS stack is self-hostable; full functionality is SaaS.** You can self-host a limited-function stack from the Apache-2.0 crates — using the published Docker Compose example — for local evaluation and development. The complete feature set (enterprise operations, multi-tenant SLA, and the managed compliance posture) is delivered only through the AI Agent Assembly cloud. See [Cloud Deployment](cloud-deployment.md) and [Quick Start (SaaS)](quickstart-saas.md) for the managed onboarding paths.
 
 ---
 
@@ -32,11 +32,11 @@ Open-sourcing the enforcement logic creates a community feedback loop. Security 
 
 We chose Apache-2.0 specifically because it permits commercial integration without a copyleft obligation — SDK users can embed the shims in proprietary products without the license spreading to their own code.
 
-### Open core, but still SaaS-only
+### Limited-function self-host, full-function SaaS
 
-Open source without self-hosting is deliberate. We ship the crates so teams can read, audit, and contribute — not so they can run a private deployment.
+Shipping the crates as open source lets teams read, audit, and contribute — and self-host a **limited-function** stack (via the published Docker Compose example) for local evaluation and development.
 
-Operating a multi-tenant SaaS with the security and reliability commitments in the [Security model](security-model.md) takes infrastructure, on-call, and operational expertise that a compiled binary cannot provide. Keeping deployment SaaS-only lets us uphold the SLA and compliance posture without fragmenting the product across self-managed installs.
+The **complete** feature set stays SaaS. Operating a multi-tenant platform with the security and reliability commitments in the [Security model](security-model.md) takes infrastructure, on-call, and operational expertise that a self-managed install cannot match — so enterprise operations, the uptime SLA, and the managed compliance posture are delivered only through the AI Agent Assembly cloud.
 
 ---
 
@@ -66,6 +66,7 @@ Operating a multi-tenant SaaS with the security and reliability commitments in t
 | Audit log retention > 30 days | ❌ | ✅ (configurable, up to 1 year) |
 | SIEM export (JSON / CEF) | ❌ | ✅ |
 | **Deployment and SLA** | | |
+| Limited-function self-host (Docker Compose) | ✅ (local eval/dev) | — |
 | SaaS — shared region | ✅ (Free/Team tier) | ✅ |
 | SaaS — dedicated region | ❌ | ✅ (Enterprise tier) |
 | Multi-region data residency | ❌ | ✅ |

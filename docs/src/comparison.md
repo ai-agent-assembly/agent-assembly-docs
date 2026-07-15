@@ -53,7 +53,7 @@ Legend: ✓ = full support · partial = limited or gated behind a paid tier · �
 | Immutable audit log with tamper-evident signatures | ✓ (HMAC-SHA256) | ✗ | ✗ | ✗ | partial |
 | Audit log retention > 30 days | ✓ (up to 1 year, Enterprise) | partial (30 days free) | partial | partial | ✓ |
 | **On-premises / self-hosted option** | | | | | |
-| Self-hosted deployment | ✗ (SaaS only) | ✓ | ✗ (SaaS only) | ✓ | ✓ |
+| Self-hosted deployment | partial (limited-function OSS) | ✓ | ✗ (SaaS only) | ✓ | ✓ |
 
 ---
 
@@ -63,7 +63,7 @@ These are capabilities competitors offer that AI Agent Assembly does not yet ful
 
 1. **Vault-backed secrets management** — Pillar Security provides first-class secrets vault integration with automatic secret rotation and injection. AAASM currently supports secret-pattern detection via regex policies but does not integrate with HashiCorp Vault or AWS Secrets Manager.
 2. **Automated human-in-the-loop approval workflows** — Pillar Security provides structured approval routing with escalation chains. AAASM can deny and alert but does not yet route decisions to a named approver queue.
-3. **Self-hosted deployment** — Langfuse, Opik, and Pillar Security all support self-hosted deployment. AAASM is SaaS-only in this release; self-hosted is out of scope for the current roadmap (see [Open Core Boundary](open-core-boundary.md)).
+3. **Full-function self-hosted deployment** — Langfuse, Opik, and Pillar Security offer a fully self-hostable product. AAASM self-hosting is limited-function today: a limited stack runs locally from the Apache-2.0 crates (Docker Compose) for evaluation and development, while the complete feature set is delivered via SaaS (see [Open Core Boundary](open-core-boundary.md)).
 4. **Evaluation frameworks and LLM-as-judge scoring** — Langfuse and Opik provide built-in evaluation pipelines, dataset management, and automated LLM-as-judge scoring for output quality. AAASM's policy engine operates on patterns and metadata, not semantic quality.
 5. **Prompt management and versioning** — Langfuse provides a managed prompt registry with version history and A/B comparison. AAASM does not include a prompt registry.
 

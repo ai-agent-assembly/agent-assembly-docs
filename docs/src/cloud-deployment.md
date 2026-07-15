@@ -4,7 +4,7 @@
 
 This page covers how to configure an enterprise workspace on the AI Agent Assembly SaaS platform: identity federation (SSO), user provisioning (SCIM), regional data residency, budgets, SLAs, and billing.
 
-> **Self-hosted deployment is not available.** AI Agent Assembly is a SaaS-only product. There is no self-hosted, on-premises, or bring-your-own-infrastructure option. All compute, storage, and governance logic runs in the AI Agent Assembly cloud.
+> **This page covers the managed SaaS platform.** A limited-function stack is self-hostable from the Apache-2.0 crates (see the Docker Compose example) for local evaluation and development, but the enterprise operations described here — SSO, SCIM, regional data residency, SLAs, and billing — run only in the AI Agent Assembly cloud. See [Open core boundary](open-core-boundary.md) for the split.
 
 ---
 
