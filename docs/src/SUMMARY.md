@@ -22,6 +22,7 @@
 # Reference
 
 - [Policy Reference](policy-reference.md)
+- [Glossary](glossary.md)
 
 # Support
 
