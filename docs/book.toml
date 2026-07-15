@@ -5,19 +5,25 @@ authors = ["AI Agent Assembly Team"]
 language = "en"
 src = "src"
 
-# i18n / localization scaffold (AAASM-4637). Docs are English-only for now;
-# see src/localization.md for the plan. When translations are prioritized,
-# enable the mdbook-i18n-helpers PO-catalog workflow and declare the
-# per-language configuration here, e.g.:
+# i18n / localization (AAASM-4637 scaffold → AAASM-4697 zh-Hant first pass).
+# Localization uses the mdbook-i18n-helpers gettext workflow, NOT mdBook's native
+# `[language]` table (which the pinned mdBook build rejects when empty). The
+# `gettext` preprocessor below is a no-op passthrough for the default English
+# build (`language = "en"`, no `po/en.po`); a translated build is produced by
+# overriding the language, e.g.:
 #
-# [language.en]
-# name = "English"
-# [language.zh-TW]
-# name = "繁體中文"
+#   MDBOOK_BOOK__LANGUAGE=zh-Hant mdbook build -d book/zh-Hant
 #
-# Do NOT uncomment until the PO catalogs and mdbook-i18n-helpers toolchain are
-# wired up — the CI-pinned mdBook build treats an empty [language] table as an
-# error.
+# which loads `po/zh-Hant.po` and falls back to the English source for any
+# untranslated string. The aggregation pipeline (docs/scripts/aggregate.sh)
+# builds English at the site root and zh-Hant under /zh-Hant/; the theme's
+# language switcher (theme/head.hbs) links between them. To re-extract the
+# translation template after editing the English source:
+#
+#   MDBOOK_OUTPUT__xgettext__pot_file=messages.pot mdbook build -d po
+#   msgmerge --update po/zh-Hant.po po/messages.pot
+#
+# See src/localization.md for the full contributor workflow.
 
 [output.html]
 default-theme = "light"
@@ -28,6 +34,13 @@ additional-css = ["theme/aaasm-brand.css"]
 additional-js = ["mermaid.min.js", "mermaid-init.js", "theme/light-dark-toggle.js", "theme/aa-funnel-events.js"]
 
 [preprocessor]
+
+# Translate the source with gettext BEFORE the other preprocessors run, using
+# the PO catalog selected by book.language (overridable via MDBOOK_BOOK__LANGUAGE).
+# No-op for English; see the i18n note above. `after = ["links"]` so include
+# directives are resolved into translatable text first.
+[preprocessor.gettext]
+after = ["links"]
 
 [preprocessor.mermaid]
 command = "mdbook-mermaid"
