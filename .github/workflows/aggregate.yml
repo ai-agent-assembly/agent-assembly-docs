@@ -72,6 +72,17 @@ jobs:
           tar -xzf mdbook-mermaid.tar.gz
           sudo mv mdbook mdbook-mermaid /usr/local/bin/
 
+      - name: Install mdbook-gettext (hub i18n — AAASM-4697)
+        # The hub's book.toml enables the mdbook-i18n-helpers `gettext`
+        # preprocessor to build the zh-Hant catalog under /zh-Hant/ (see
+        # docs/scripts/aggregate.sh). mdBook fails the build if a configured
+        # preprocessor binary is missing, so it must be on PATH before Aggregate.
+        # No prebuilt release binaries are published upstream, so build from
+        # crates.io (pinned). 0.4.x supports mdBook 0.5.x's RenderContext; a
+        # harmless "built against 0.5.4, called from 0.5.2" version-skew warning
+        # is expected and non-fatal (same class as mdbook-mermaid's).
+        run: cargo install mdbook-i18n-helpers --version 0.4.0
+
       - name: Install uv (python-sdk / mkdocs)
         uses: astral-sh/setup-uv@11f9893b081a58869d3b5fccaea48c9e9e46f990 # v8.3.2
 
