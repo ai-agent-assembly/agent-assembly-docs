@@ -69,7 +69,7 @@
   // -----------------------------------------------------------------
   function ctaLocationFor(a) {
     // Explicit override wins.
-    const explicit = a.getAttribute('data-cta-location');
+    const explicit = a.dataset.ctaLocation;
     if (explicit) { return explicit; }
     if (a.closest('.aa-cta-next')) { return 'body'; }
     if (a.closest('nav, .sidebar, .chapter')) { return 'nav'; }
@@ -112,7 +112,7 @@
     };
 
     // Explicit event override for hand-tagged CTAs (Quickstart-next-step, etc.).
-    const explicitEvent = a.getAttribute('data-track-event');
+    const explicitEvent = a.dataset.trackEvent;
     if (explicitEvent) {
       fire(explicitEvent, params);
       return;
