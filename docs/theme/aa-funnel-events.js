@@ -12,10 +12,10 @@
 (function () {
   'use strict';
 
-  var SURFACE = 'docs';
-  var GITHUB_CORE = 'github.com/ai-agent-assembly/agent-assembly';
-  var GITHUB_EXAMPLES = 'github.com/ai-agent-assembly/examples';
-  var GITHUB_ISSUE_ANY = /^https?:\/\/github\.com\/ai-agent-assembly\/[^/]+\/issues/;
+  const SURFACE = 'docs';
+  const GITHUB_CORE = 'github.com/ai-agent-assembly/agent-assembly';
+  const GITHUB_EXAMPLES = 'github.com/ai-agent-assembly/examples';
+  const GITHUB_ISSUE_ANY = /^https?:\/\/github\.com\/ai-agent-assembly\/[^/]+\/issues/;
 
   function baseParams() {
     return {
@@ -28,9 +28,9 @@
 
   function fire(name, extra) {
     if (typeof window.gtag !== 'function') { return; }
-    var params = baseParams();
+    const params = baseParams();
     if (extra) {
-      for (var k in extra) {
+      for (const k in extra) {
         if (Object.prototype.hasOwnProperty.call(extra, k)) { params[k] = extra[k]; }
       }
     }
@@ -44,7 +44,7 @@
   // Page-view classification events. Runs once per page load.
   // -----------------------------------------------------------------
   function firePageViewEvents() {
-    var path = location.pathname;
+    const path = location.pathname;
 
     if (/(^|\/)security-model(\.html)?$/.test(path)) {
       fire('docs_security_model_view');
@@ -69,7 +69,7 @@
   // -----------------------------------------------------------------
   function ctaLocationFor(a) {
     // Explicit override wins.
-    var explicit = a.getAttribute('data-cta-location');
+    const explicit = a.getAttribute('data-cta-location');
     if (explicit) { return explicit; }
     if (a.closest('.aa-cta-next')) { return 'body'; }
     if (a.closest('nav, .sidebar, .chapter')) { return 'nav'; }
@@ -87,7 +87,7 @@
 
   function commandTypeFor(text) {
     if (!text) { return 'other'; }
-    var t = text.trim().toLowerCase();
+    const t = text.trim().toLowerCase();
     if (t.indexOf('brew ') === 0) { return 'brew'; }
     if (t.indexOf('docker') !== -1) { return 'docker'; }
     if (t.indexOf('curl ') === 0 || t.indexOf('curl -') !== -1) { return 'curl'; }
@@ -99,12 +99,12 @@
   }
 
   function handleAnchorClick(e) {
-    var a = e.target && e.target.closest && e.target.closest('a[href]');
+    const a = e.target && e.target.closest && e.target.closest('a[href]');
     if (!a) { return; }
-    var href = a.getAttribute('href') || '';
+    const href = a.getAttribute('href') || '';
     if (!href || href.charAt(0) === '#') { return; }
 
-    var params = {
+    const params = {
       cta_location: ctaLocationFor(a),
       link_url: a.href,
       link_domain: a.hostname || '',
@@ -112,7 +112,7 @@
     };
 
     // Explicit event override for hand-tagged CTAs (Quickstart-next-step, etc.).
-    var explicitEvent = a.getAttribute('data-track-event');
+    const explicitEvent = a.getAttribute('data-track-event');
     if (explicitEvent) {
       fire(explicitEvent, params);
       return;
@@ -143,17 +143,17 @@
   // from the code text (Section 3.3 closed vocabulary).
   // -----------------------------------------------------------------
   function isInstallPage() {
-    var path = location.pathname;
+    const path = location.pathname;
     return /(^|\/)(quickstart-saas|installation)(\.html)?$/.test(path);
   }
 
   function handleCopyClick(e) {
     if (!isInstallPage()) { return; }
-    var btn = e.target && e.target.closest && e.target.closest('.clip-button, button[aria-label="Copy to clipboard"]');
+    const btn = e.target && e.target.closest && e.target.closest('.clip-button, button[aria-label="Copy to clipboard"]');
     if (!btn) { return; }
-    var pre = btn.closest('pre');
-    var code = pre && pre.querySelector('code');
-    var text = code ? code.textContent : '';
+    const pre = btn.closest('pre');
+    const code = pre && pre.querySelector('code');
+    const text = code ? code.textContent : '';
     fire('docs_copy_install_command', {
       cta_location: 'install_block',
       command_type: commandTypeFor(text)
