@@ -55,7 +55,7 @@ status map for every area below.
 | Python SDK | [python-sdk](https://github.com/ai-agent-assembly/python-sdk) | <https://docs.agent-assembly.com/python-sdk/> |
 | Node SDK | [node-sdk](https://github.com/ai-agent-assembly/node-sdk) | <https://docs.agent-assembly.com/node-sdk/> |
 | Go SDK | [go-sdk](https://github.com/ai-agent-assembly/go-sdk) | <https://docs.agent-assembly.com/go-sdk/> |
-| Runnable examples | [agent-assembly-examples](https://github.com/ai-agent-assembly/examples) | repo `README` |
+| Runnable examples | [examples](https://github.com/ai-agent-assembly/examples) | repo `README` |
 | Homebrew / install | [homebrew-tap](https://github.com/ai-agent-assembly/homebrew-tap) | repo `README` |
 | Specs (protocol & policy) | in the `agent-assembly` monorepo | [Policy reference](docs/src/policy-reference.md) |
 | Releases & compatibility | this hub + component tags | [Compatibility matrix](docs/src/compatibility.md) |

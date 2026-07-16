@@ -224,7 +224,7 @@ def run_agent(prompt: str) -> str:
 <div class="aa-cta-next">
   <span class="aa-cta-next__label">Next step</span>
   <a href="https://github.com/ai-agent-assembly/examples?utm_source=docs&amp;utm_medium=docs_link&amp;utm_campaign=oss_install&amp;utm_content=quickstart_next_step" data-cta-location="body" rel="noopener">Run a working example →</a>
-  <p>Open the <code>agent-assembly-examples</code> repo and step through a governed
+  <p>Open the <code>examples</code> repo and step through a governed
      LangChain, LlamaIndex, or bare-OpenAI agent end-to-end.</p>
 </div>
 
