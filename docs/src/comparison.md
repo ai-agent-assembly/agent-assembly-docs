@@ -16,13 +16,15 @@ Each row is a capability. The columns are AI Agent Assembly (AAASM), Langfuse, H
 
 Legend: ✓ = full support · partial = limited or gated behind a paid tier · ✗ = not available · n/a = not applicable to the product category.
 
+> 🚧 **Coming soon.** Rows marked ✓ 🚧 in the AAASM column describe the AAA-Commercial (Enterprise) tier and the paid SaaS platform that delivers it — both are planned and not yet generally available. See [Open core boundary](open-core-boundary.md) for what ships today versus what is intended design.
+
 | Capability | AAASM | Langfuse | Helicone | Opik | Pillar Security |
 |---|---|---|---|---|---|
 | **Observability** | | | | | |
 | LLM call tracing (latency, tokens, cost) | ✓ | ✓ | ✓ | ✓ | partial |
 | Multi-turn conversation tracing | ✓ | ✓ | partial | ✓ | ✗ |
 | Agent lineage / parent-child spans | ✓ | ✓ | ✗ | partial | ✗ |
-| SIEM export (JSON / CEF) | ✓ | ✗ | ✗ | ✗ | partial |
+| SIEM export (JSON / CEF) | ✓ 🚧 | ✗ | ✗ | ✗ | partial |
 | **Policy enforcement** | | | | | |
 | Pre-execution allow / deny (runtime block) | ✓ | ✗ | ✗ | ✗ | partial |
 | Policy-as-code (YAML / JSON versioned rules) | ✓ | ✗ | ✗ | ✗ | ✗ |
@@ -40,9 +42,9 @@ Legend: ✓ = full support · partial = limited or gated behind a paid tier · �
 | Works with any LLM provider | ✓ | ✓ | ✓ | ✓ | ✓ |
 | Open-source SDK core (Apache-2.0) | ✓ | ✓ (MIT) | ✗ | ✓ (Apache-2.0) | ✗ |
 | **Access control (RBAC)** | | | | | |
-| Role-based access control | ✓ (Owner/Admin/Developer/Viewer) | partial | partial | partial | ✓ |
-| SAML 2.0 / OIDC SSO | ✓ | partial (Enterprise) | partial (Enterprise) | partial (Enterprise) | ✓ |
-| SCIM user provisioning | ✓ | ✗ | ✗ | ✗ | partial |
+| Role-based access control | ✓ 🚧 (Owner/Admin/Developer/Viewer) | partial | partial | partial | ✓ |
+| SAML 2.0 / OIDC SSO | ✓ 🚧 | partial (Enterprise) | partial (Enterprise) | partial (Enterprise) | ✓ |
+| SCIM user provisioning | ✓ 🚧 | ✗ | ✗ | ✗ | partial |
 | **Approval workflows** | | | | | |
 | Human-in-the-loop approval gates | partial (policy deny + alerting) | ✗ | ✗ | ✗ | ✓ |
 | Automated approval routing | ✗ | ✗ | ✗ | ✗ | ✓ |
@@ -50,8 +52,8 @@ Legend: ✓ = full support · partial = limited or gated behind a paid tier · �
 | Per-team token / cost budgets (enforced) | ✓ | partial (tracking only) | ✓ (tracking + alerts) | partial (tracking only) | ✗ |
 | Budget enforcement (hard deny on exceed) | ✓ | ✗ | ✗ | ✗ | ✗ |
 | **Audit log immutability** | | | | | |
-| Immutable audit log with tamper-evident signatures | ✓ (HMAC-SHA256) | ✗ | ✗ | ✗ | partial |
-| Audit log retention > 30 days | ✓ (up to 1 year, Enterprise) | partial (30 days free) | partial | partial | ✓ |
+| Immutable audit log with tamper-evident signatures | ✓ 🚧 (HMAC-SHA256) | ✗ | ✗ | ✗ | partial |
+| Audit log retention > 30 days | ✓ 🚧 (up to 1 year, Enterprise) | partial (30 days free) | partial | partial | ✓ |
 | **On-premises / self-hosted option** | | | | | |
 | Self-hosted deployment | partial (limited-function OSS) | ✓ | ✗ (SaaS only) | ✓ | ✓ |
 
