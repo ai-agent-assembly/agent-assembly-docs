@@ -131,8 +131,11 @@ Caps per-agent LLM spend. The gateway enforces the budget before allowing the ag
 |---|---|---|---|
 | `budget.daily_limit_usd` | float | No | Maximum USD spend per calendar day. Must be > 0. |
 | `budget.monthly_limit_usd` | float | No | Maximum USD spend per calendar month. Must be > 0 and ≥ `daily_limit_usd`. |
+| `budget.org_daily_limit_usd` | float | No | Maximum USD spend per calendar day, aggregated across the whole organisation. Must be > 0. |
+| `budget.org_monthly_limit_usd` | float | No | Maximum USD spend per calendar month, aggregated across the whole organisation. Must be > 0 and ≥ `org_daily_limit_usd`. |
 | `budget.timezone` | string | No | IANA timezone for the daily/monthly reset boundary. Defaults to UTC when absent. |
 | `budget.action_on_exceed` | `"deny"` \| `"suspend"` | No | Action when budget is exceeded. `deny` (default): blocks individual requests but keeps the agent active. `suspend`: suspends the agent entirely until the budget resets. |
+| `budget.window` | string | No | Sub-day rollover window as a humantime duration (e.g. `"5s"`, `"30m"`, `"1h30m"`). When absent, the daily/monthly counters roll over at the calendar-day boundary. Must be a positive duration. |
 
 ```yaml
 budget:
@@ -150,7 +153,8 @@ Scans agent inputs and outputs for PII or credential patterns using regex.
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `data.sensitive_patterns` | list of regex strings | No | RE2-compatible regex patterns. A match causes the agent action to be blocked. Invalid regex is rejected at validation time. |
+| `data.sensitive_patterns` | list of regex strings | No | RE2-compatible regex patterns. A match triggers `credential_action`. Invalid regex is rejected at validation time. |
+| `data.credential_action` | `"block"` \| `"redact_only"` \| `"alert_only"` \| `"alert_and_redact"` | No | Action taken when a `sensitive_patterns` match is found. `redact_only` (default): redact the match and forward the request. `block`: block the agent action entirely. `alert_only`: alert without redacting. `alert_and_redact`: alert and redact. |
 
 ```yaml
 data:
@@ -258,15 +262,19 @@ The gateway validates every policy on upload. All errors are collected and retur
 | `schedule.active_hours.timezone` | Required when `active_hours` is present; must be a valid IANA timezone name |
 | `budget.daily_limit_usd` | Must be > 0 when present |
 | `budget.monthly_limit_usd` | Must be > 0; must be ≥ `daily_limit_usd` when both are set |
+| `budget.org_daily_limit_usd` | Must be > 0 when present |
+| `budget.org_monthly_limit_usd` | Must be > 0; must be ≥ `org_daily_limit_usd` when both are set |
 | `budget.timezone` | Must be a valid IANA timezone name when present |
 | `budget.action_on_exceed` | Must be `"deny"` or `"suspend"` when present |
+| `budget.window` | Must be a positive humantime duration (e.g. `5s`, `30m`, `1h30m`) when present |
 | `data.sensitive_patterns[n]` | Must be a valid RE2 regex |
+| `data.credential_action` | Must be `"block"`, `"redact_only"`, `"alert_only"`, or `"alert_and_redact"` when present |
 | `tools.<name>.requires_approval_if` | Must not be empty; must reference only `L0`–`L3` governance levels |
 | `capabilities.allow[n]` / `capabilities.deny[n]` | Must be a known capability string |
 | `approval_timeout_secs` | Must be > 0 when present |
 | `scope` | Must be `global`, `org:<id>`, `team:<id>`, `agent:<uuid>`, or `tool:<name>`; identifier after `:` must not be empty; `agent:` value must be a valid UUID |
 
-Unknown keys at any level produce a **warning** (not an error) — the policy is accepted and the unknown key is ignored. This allows forward-compatible policy files.
+Unknown keys — whether at the top level, or nested inside an enforced section (`network`, `schedule`/`schedule.active_hours`, `budget`, `data`, `tools.<name>`, `capabilities`, `approval`) — produce a **hard validation error** that rejects the whole document. This is intentionally fail-closed: a typo'd key (e.g. `capabilties` for `capabilities`, or `dney` for `deny` under `capabilities`) must not silently drop the restriction the author intended while the rest of the policy loads and enforces a weaker posture than was written.
 
 ---
 
@@ -427,4 +435,4 @@ spec:
 
 ---
 
-*Last reviewed: 2026-06-11 · AI Agent Assembly Team*
+*Last reviewed: 2026-07-16 · AI Agent Assembly Team*
