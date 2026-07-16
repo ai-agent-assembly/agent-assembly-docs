@@ -266,7 +266,7 @@ The gateway validates every policy on upload. All errors are collected and retur
 | `approval_timeout_secs` | Must be > 0 when present |
 | `scope` | Must be `global`, `org:<id>`, `team:<id>`, `agent:<uuid>`, or `tool:<name>`; identifier after `:` must not be empty; `agent:` value must be a valid UUID |
 
-Unknown keys at any level produce a **warning** (not an error) — the policy is accepted and the unknown key is ignored. This allows forward-compatible policy files.
+Unknown keys — whether at the top level, or nested inside an enforced section (`network`, `schedule`/`schedule.active_hours`, `budget`, `data`, `tools.<name>`, `capabilities`, `approval`) — produce a **hard validation error** that rejects the whole document. This is intentionally fail-closed: a typo'd key (e.g. `capabilties` for `capabilities`, or `dney` for `deny` under `capabilities`) must not silently drop the restriction the author intended while the rest of the policy loads and enforces a weaker posture than was written.
 
 ---
 
