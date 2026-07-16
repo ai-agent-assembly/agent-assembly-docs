@@ -12,10 +12,10 @@
 (function () {
   'use strict';
 
-  var SURFACE = 'docs';
-  var GITHUB_CORE = 'github.com/ai-agent-assembly/agent-assembly';
-  var GITHUB_EXAMPLES = 'github.com/ai-agent-assembly/examples';
-  var GITHUB_ISSUE_ANY = /^https?:\/\/github\.com\/ai-agent-assembly\/[^/]+\/issues/;
+  const SURFACE = 'docs';
+  const GITHUB_CORE = 'github.com/ai-agent-assembly/agent-assembly';
+  const GITHUB_EXAMPLES = 'github.com/ai-agent-assembly/examples';
+  const GITHUB_ISSUE_ANY = /^https?:\/\/github\.com\/ai-agent-assembly\/[^/]+\/issues/;
 
   function baseParams() {
     return {
@@ -28,10 +28,10 @@
 
   function fire(name, extra) {
     if (typeof window.gtag !== 'function') { return; }
-    var params = baseParams();
+    const params = baseParams();
     if (extra) {
-      for (var k in extra) {
-        if (Object.prototype.hasOwnProperty.call(extra, k)) { params[k] = extra[k]; }
+      for (const k in extra) {
+        if (Object.hasOwn(extra, k)) { params[k] = extra[k]; }
       }
     }
     window.gtag('event', name, params);
@@ -44,7 +44,7 @@
   // Page-view classification events. Runs once per page load.
   // -----------------------------------------------------------------
   function firePageViewEvents() {
-    var path = location.pathname;
+    const path = location.pathname;
 
     if (/(^|\/)security-model(\.html)?$/.test(path)) {
       fire('docs_security_model_view');
@@ -55,11 +55,11 @@
     // SDK page views — the aggregated module docs live under /python-sdk/,
     // /node-sdk/, /go-sdk/. Fire once when the reader lands on any page
     // under that subpath so the report can attribute intent by language.
-    if (/^\/python-sdk\//.test(path)) {
+    if (path.startsWith('/python-sdk/')) {
       fire('docs_sdk_python_view', { sdk: 'python' });
-    } else if (/^\/node-sdk\//.test(path)) {
+    } else if (path.startsWith('/node-sdk/')) {
       fire('docs_sdk_node_view', { sdk: 'node' });
-    } else if (/^\/go-sdk\//.test(path)) {
+    } else if (path.startsWith('/go-sdk/')) {
       fire('docs_sdk_go_view', { sdk: 'go' });
     }
   }
@@ -69,7 +69,7 @@
   // -----------------------------------------------------------------
   function ctaLocationFor(a) {
     // Explicit override wins.
-    var explicit = a.getAttribute('data-cta-location');
+    const explicit = a.dataset.ctaLocation;
     if (explicit) { return explicit; }
     if (a.closest('.aa-cta-next')) { return 'body'; }
     if (a.closest('nav, .sidebar, .chapter')) { return 'nav'; }
@@ -87,10 +87,10 @@
 
   function commandTypeFor(text) {
     if (!text) { return 'other'; }
-    var t = text.trim().toLowerCase();
+    const t = text.trim().toLowerCase();
     if (t.indexOf('brew ') === 0) { return 'brew'; }
-    if (t.indexOf('docker') !== -1) { return 'docker'; }
-    if (t.indexOf('curl ') === 0 || t.indexOf('curl -') !== -1) { return 'curl'; }
+    if (t.includes('docker')) { return 'docker'; }
+    if (t.indexOf('curl ') === 0 || t.includes('curl -')) { return 'curl'; }
     if (t.indexOf('pip ') === 0 || t.indexOf('pnpm ') === 0 || t.indexOf('npm ') === 0 ||
         t.indexOf('yarn ') === 0 || t.indexOf('go ') === 0 || t.indexOf('cargo ') === 0) {
       return 'source';
@@ -99,12 +99,12 @@
   }
 
   function handleAnchorClick(e) {
-    var a = e.target && e.target.closest && e.target.closest('a[href]');
+    const a = e.target?.closest?.('a[href]');
     if (!a) { return; }
-    var href = a.getAttribute('href') || '';
+    const href = a.getAttribute('href') || '';
     if (!href || href.charAt(0) === '#') { return; }
 
-    var params = {
+    const params = {
       cta_location: ctaLocationFor(a),
       link_url: a.href,
       link_domain: a.hostname || '',
@@ -112,14 +112,14 @@
     };
 
     // Explicit event override for hand-tagged CTAs (Quickstart-next-step, etc.).
-    var explicitEvent = a.getAttribute('data-track-event');
+    const explicitEvent = a.dataset.trackEvent;
     if (explicitEvent) {
       fire(explicitEvent, params);
       return;
     }
 
     // Auto-classify by destination.
-    if (a.href.indexOf(GITHUB_EXAMPLES) !== -1) {
+    if (a.href.includes(GITHUB_EXAMPLES)) {
       fire('docs_examples_click', params);
       return;
     }
@@ -127,13 +127,12 @@
       fire('docs_github_issue_click', params);
       return;
     }
-    if (a.href.indexOf(GITHUB_CORE) !== -1) {
+    if (a.href.includes(GITHUB_CORE)) {
       fire('github_core_repo_click', params);
       return;
     }
     if (/agent-assembly\.com\/early-access/.test(a.href)) {
       fire('cta_cloud_early_access_click', params);
-      return;
     }
   }
 
@@ -143,17 +142,17 @@
   // from the code text (Section 3.3 closed vocabulary).
   // -----------------------------------------------------------------
   function isInstallPage() {
-    var path = location.pathname;
+    const path = location.pathname;
     return /(^|\/)(quickstart-saas|installation)(\.html)?$/.test(path);
   }
 
   function handleCopyClick(e) {
     if (!isInstallPage()) { return; }
-    var btn = e.target && e.target.closest && e.target.closest('.clip-button, button[aria-label="Copy to clipboard"]');
+    const btn = e.target?.closest?.('.clip-button, button[aria-label="Copy to clipboard"]');
     if (!btn) { return; }
-    var pre = btn.closest('pre');
-    var code = pre && pre.querySelector('code');
-    var text = code ? code.textContent : '';
+    const pre = btn.closest('pre');
+    const code = pre?.querySelector('code');
+    const text = code ? code.textContent : '';
     fire('docs_copy_install_command', {
       cta_location: 'install_block',
       command_type: commandTypeFor(text)
