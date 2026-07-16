@@ -104,4 +104,4 @@ Last validated 2026-05-05 against each vendor's documentation as of that date.
 
 ---
 
-*Last reviewed: 2026-06-11 — AI Agent Assembly Team*
+*Last reviewed: 2026-07-16 — AI Agent Assembly Team*
