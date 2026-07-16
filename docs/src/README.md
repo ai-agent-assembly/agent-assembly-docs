@@ -70,7 +70,7 @@ Every module's docs are **aggregated into this hub** under a stable subpath (`/c
 ## Runnable examples
 
 Prefer learning by running code? The
-[**agent-assembly-examples**](https://github.com/ai-agent-assembly/examples)
+[**examples**](https://github.com/ai-agent-assembly/examples)
 repo collects small, framework-specific Agent Assembly examples for Python,
 Node.js/TypeScript, Go, policy enforcement, approvals, audit, trace, and runtime
 workflows. Clone it and run an example end to end to see governance in action
@@ -91,7 +91,7 @@ These three interception points describe *where* enforcement happens; they sit i
 <div class="aa-cta-next">
   <span class="aa-cta-next__label">Next step</span>
   <a href="https://github.com/ai-agent-assembly/examples?utm_source=docs&amp;utm_medium=docs_link&amp;utm_campaign=oss_install&amp;utm_content=landing_next_step" data-cta-location="body" rel="noopener">Run a governed example →</a>
-  <p>Clone the <code>agent-assembly-examples</code> repo and run a governed LangChain
+  <p>Clone the <code>examples</code> repo and run a governed LangChain
      agent end to end — the path you can run today. The managed
      <a href="quickstart-saas.md">Quick start (SaaS)</a> is coming soon.</p>
 </div>
