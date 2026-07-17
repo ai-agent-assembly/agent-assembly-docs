@@ -39,14 +39,11 @@ Before opening an issue, verify:
 
 - The SDK version matches a supported core version — see the
   [Compatibility matrix](compatibility.md).
-- The workspace ID and API key are set in the environment (`AAA_WORKSPACE_ID`,
-  `AAA_API_KEY`) — an unset credential is the most common cause of
-  "agent registration failed".
+- The API key is set in the environment (`AA_API_KEY`) — an unset credential
+  is the most common cause of "agent registration failed".
 - The gateway URL is reachable from the host running the agent
-  (`https://api.agent-assembly.com` by default).
-- The clock on the agent host is not skewed by more than a few minutes —
-  Ed25519-signed agent tokens have a bounded TTL and reject skewed
-  timestamps.
+  (`AA_GATEWAY_URL`, defaulting to `http://localhost:7391`, a local gateway
+  auto-started via `aasm start` if none is already running).
 
 ## Still stuck? Open an issue
 
@@ -63,4 +60,4 @@ routes docs bugs back here.
 
 ---
 
-*Last reviewed: 2026-07-16 — AI Agent Assembly Team*
+*Last reviewed: 2026-07-17 — AI Agent Assembly Team*
