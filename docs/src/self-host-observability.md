@@ -141,4 +141,4 @@ These endpoints live in the Apache-2.0 crates in the [`agent-assembly`](https://
 
 ---
 
-*Last reviewed: 2026-07-17 · AI Agent Assembly Team*
+*Last reviewed: 2026-07-18 · AI Agent Assembly Team*
