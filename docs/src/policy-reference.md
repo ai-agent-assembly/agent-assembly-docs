@@ -172,7 +172,7 @@ Per-tool configuration keyed by tool name. Each key in the `tools` map is a tool
 
 | Field | Type | Required | Default | Description |
 |---|---|---|---|---|
-| `tools.<name>.allow` | boolean | No | `true` | Whether this tool is permitted. Set to `false` to block the tool entirely. |
+| `tools.<name>.allow` | boolean | No | `false` | Whether this tool is permitted. The gateway is deny-by-default: a tool listed under `tools` without `allow: true` is blocked. Set `allow: true` explicitly to permit it. |
 | `tools.<name>.limit_per_hour` | integer | No | unlimited | Maximum calls to this tool per hour. |
 | `tools.<name>.requires_approval_if` | string | No | — | CEL expression that triggers human-in-the-loop approval when true. Valid governance level values: `L0`, `L1`, `L2`, `L3`. |
 
