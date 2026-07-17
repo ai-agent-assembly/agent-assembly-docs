@@ -93,12 +93,18 @@ All Cargo crates in the `agent-assembly` workspace are Apache-2.0:
 | `aa-proxy` | Apache-2.0 | Sidecar proxy — always OSS |
 | `aa-ebpf` | Apache-2.0 | eBPF user-space loader — always OSS |
 | `aa-ebpf-common` | Apache-2.0 | eBPF shared types — always OSS |
-| `aa-ffi-python` | Apache-2.0 | Python SDK native shim — always OSS |
-| `aa-ffi-node` | Apache-2.0 | TypeScript SDK native binding — always OSS |
-| `aa-ffi-go` | Apache-2.0 | Go SDK CGo shim — always OSS |
 | `aa-wasm` | Apache-2.0 | WebAssembly build — always OSS |
 | `aa-cli` | Apache-2.0 | `aasm` operator CLI — always OSS |
 | `conformance` | Apache-2.0 | Conformance test suite — always OSS |
+
+The three SDK native-binding shims are not members of the `agent-assembly` Cargo
+workspace — each lives in its own SDK repo and carries that repo's own license:
+
+| Crate | Repo | License | Notes |
+|---|---|---|---|
+| `aa-ffi-python` | `python-sdk` (`native/aa-ffi-python`) | MIT | Python SDK native shim — the `python-sdk` repo is intentionally MIT, not Apache-2.0 |
+| `aa-ffi-node` | `node-sdk` (`native/aa-ffi-node`) | Apache-2.0 | TypeScript SDK native binding |
+| `aa-ffi-go` | `go-sdk` (`native/aa-ffi-go`) | Apache-2.0 | Go SDK native shim |
 
 ### Apache 2.0 key terms
 

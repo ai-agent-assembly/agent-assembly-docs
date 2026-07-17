@@ -23,8 +23,8 @@ Install the Python SDK — see the [Python SDK quick start](https://docs.agent-a
 ### Step 2 — Set credentials
 
 ```bash
-export AAA_WORKSPACE_ID="<your-workspace-id>"   # from Settings → Workspace
-export AAA_API_KEY="<your-api-key>"             # from Settings → API Keys
+export AA_WORKSPACE_ID="<your-workspace-id>"    # from Settings → Workspace
+export AA_API_KEY="<your-api-key>"              # from Settings → API Keys
 export OPENAI_API_KEY="<your-openai-key>"
 ```
 
@@ -52,8 +52,8 @@ def run_agent(question: str) -> str:
     # AssemblyCallbackHandler it wired to that interceptor; passing it to
     # LangChain via callbacks=[...] policy-checks and audits every tool/LLM call.
     with init_assembly(
-        gateway_url=os.environ.get("AAA_GATEWAY_URL", "https://api.agent-assembly.com"),
-        api_key=os.environ["AAA_API_KEY"],
+        gateway_url=os.environ.get("AA_GATEWAY_URL", "https://api.agent-assembly.com"),
+        api_key=os.environ["AA_API_KEY"],
         agent_id="langchain-research-agent",
         mode="sdk-only",
     ):
@@ -131,8 +131,8 @@ In the console, open **Policies → New Policy** and apply the starter template 
 6. Set credentials:
 
 ```bash
-export AAA_WORKSPACE_ID="<your-workspace-id>"
-export AAA_API_KEY="<your-api-key>"
+export AA_WORKSPACE_ID="<your-workspace-id>"
+export AA_API_KEY="<your-api-key>"
 ```
 
 7. Instrument your agent entry point:
@@ -147,8 +147,8 @@ def run_agent(prompt: str) -> str:
     # Open a governed session for this agent; every call inside the context is
     # registered, policy-checked, and audited by the gateway.
     with init_assembly(
-        gateway_url=os.environ.get("AAA_GATEWAY_URL", "https://api.agent-assembly.com"),
-        api_key=os.environ["AAA_API_KEY"],
+        gateway_url=os.environ.get("AA_GATEWAY_URL", "https://api.agent-assembly.com"),
+        api_key=os.environ["AA_API_KEY"],
         agent_id="my-first-agent",
         mode="sdk-only",
     ):

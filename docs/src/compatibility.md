@@ -140,5 +140,3 @@ git pin (recorded in the **Notes** footnotes and the manifest comments). SDK cel
 may be a single version or a **range**, and breaking changes are recorded by
 bumping a row's protocol value and adding a footnote — see the manifest comments
 for the range and breaking-change conventions, including a commented example.
-
-_Last verified: 2026-06-27._

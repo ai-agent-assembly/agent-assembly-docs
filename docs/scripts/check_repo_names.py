@@ -18,7 +18,9 @@ Two checks run:
 2. PROGRAM COUNT — prose that asserts "<N> independently[- ]versioned
    programs/components" must agree with the number of *aggregated* components in
    ``hub-components.toml`` (core + the SDKs + Arena). A count that drifts from the
-   manifest (e.g. after a component is added) fails.
+   manifest (e.g. after a component is added) fails. Also scans ``.po``/``.pot``
+   translation catalogs, so an extracted msgid left behind after a source-prose
+   count change self-detects the same way a stale ``.md`` page would.
 
 The canonical current names come from the manifest so a *new* rename only needs
 the manifest updated plus one alias-map line here — the audit then keeps every
@@ -81,6 +83,14 @@ EXCLUDED_PATHS: Final[frozenset[str]] = frozenset(
 SCANNED_SUFFIXES: Final[frozenset[str]] = frozenset(
     {".md", ".toml", ".json", ".yml", ".yaml"}
 )
+
+# gettext translation catalogs. Kept out of SCANNED_SUFFIXES (the stale-name
+# audit doesn't sweep these), but the program-count assertion gets duplicated
+# verbatim into extracted msgid strings, and a catalog regenerated before a
+# source-prose edit lands (or never re-synced after one) drifts out of date
+# silently — see AAASM-4791. Wired into the program-count check only, so a
+# stale catalog fails the same way a stale source page would.
+PO_SUFFIXES: Final[frozenset[str]] = frozenset({".po", ".pot"})
 
 # English number words the program-count prose uses, mapped to their integer.
 COUNT_WORDS: Final[dict[str, int]] = {
@@ -157,6 +167,31 @@ def tracked_files() -> list[Path]:
     return files
 
 
+def tracked_po_files() -> list[Path]:
+    """Return repo-tracked ``.po``/``.pot`` translation catalogs.
+
+    Deliberately separate from ``tracked_files()``: these live outside
+    ``SCANNED_SUFFIXES`` so the stale-repo-name audit doesn't sweep them, but
+    ``audit_program_count`` needs them to catch a catalog's msgid drifting
+    behind the source prose it was extracted from.
+    """
+    out = subprocess.run(
+        ["git", "ls-files", "-z"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+    files: list[Path] = []
+    for rel in out.split("\0"):
+        if not rel:
+            continue
+        path = REPO_ROOT / rel
+        if path.suffix.lower() in PO_SUFFIXES:
+            files.append(path)
+    return files
+
+
 def audit_stale_names(files: list[Path]) -> list[str]:
     """Return one violation string per retired-name occurrence found in ``files``."""
     patterns = {old: _alias_pattern(old) for old in RENAME_ALIASES}
@@ -176,10 +211,16 @@ def audit_stale_names(files: list[Path]) -> list[str]:
 
 
 def audit_program_count(files: list[Path], expected: int) -> list[str]:
-    """Return one violation string per prose count that disagrees with ``expected``."""
+    """Return one violation string per prose count that disagrees with ``expected``.
+
+    ``files`` may include ``.po``/``.pot`` catalogs alongside ``.md`` pages: a
+    gettext msgid line carries the full sentence verbatim (e.g. ``"...composed
+    of four independently versioned..."``), so the same line-level regex catches
+    a catalog that fell behind a source-prose count change.
+    """
     violations: list[str] = []
     for path in files:
-        if path.suffix.lower() != ".md":
+        if path.suffix.lower() not in {".md", *PO_SUFFIXES}:
             continue
         rel = path.relative_to(REPO_ROOT).as_posix()
         for lineno, line in enumerate(
@@ -203,8 +244,9 @@ def main(argv: list[str] | None = None) -> int:
     manifest = load_manifest(MANIFEST_PATH)
     expected = aggregated_component_count(manifest)
     files = tracked_files()
+    po_files = tracked_po_files()
 
-    violations = audit_stale_names(files) + audit_program_count(files, expected)
+    violations = audit_stale_names(files) + audit_program_count(files + po_files, expected)
     if violations:
         sys.stderr.write(
             "Stale pre-rename repo-name audit failed "
