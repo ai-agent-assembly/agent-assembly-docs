@@ -18,11 +18,15 @@ site, built and deployed to GitHub Pages on every push to `main`, and published 
 
 This hub **aggregates** the docs of every module into one unified, searchable
 site. Each of the product's five independently-versioned components (core + the
-three SDKs) ships its **own** docs, built with its native toolchain (mdBook,
-mkdocs-material, Docusaurus, Hugo+Hextra); the aggregation pipeline pulls each
-one, builds it, and mounts its output under a stable subpath — `/core/`,
-`/python-sdk/`, `/node-sdk/`, `/go-sdk/` — with a unified Pagefind search index
-over the whole site. See [`AGGREGATION.md`](../AGGREGATION.md) for the full
+three SDKs + Arena) ships its **own** docs, built with its native toolchain
+(mdBook, mkdocs-material, Docusaurus, Hugo+Hextra); the aggregation pipeline pulls
+each one, builds it, and mounts its output under a stable subpath — `/core/`,
+`/python-sdk/`, `/node-sdk/`, `/go-sdk/`, `/arena/` — with a unified Pagefind
+search index over the whole site. The canonical component set lives in
+[`hub-components.toml`](../hub-components.toml); a stale-name audit
+([`docs/scripts/check_repo_names.py`](../docs/scripts/check_repo_names.py)) keeps
+every prose/config reference to a component's repo name from drifting after a
+rename. See [`AGGREGATION.md`](../AGGREGATION.md) for the full
 contract. Alongside the aggregated component docs, this repo also authors the
 first-party cross-cutting material: the documentation index, the core↔SDK
 compatibility matrix, the security model, the comparison page, the open-core
@@ -63,6 +67,8 @@ cd docs && mdbook serve     # live-reload preview at http://localhost:3000
 cd docs && mdbook build     # build the site (CI gate: must pass with no warnings)
 python3 docs/scripts/generate_compatibility.py --check   # fail on matrix drift (CI runs this)
 python3 docs/scripts/generate_compatibility.py           # regenerate compatibility.md in place
+python3 docs/scripts/generate_hub_components.py --check   # fail on hub-component drift (CI runs this)
+python3 docs/scripts/check_repo_names.py                 # fail on stale pre-rename repo names (CI runs this)
 ```
 
 **Prerequisites:** mdBook (CI pins **`v0.4.40`**), `mdbook-mermaid` (the Mermaid
