@@ -53,6 +53,16 @@ All keys are generated using a CSPRNG. No MD5, SHA-1, or DES primitives are used
 
 ## Authentication flow
 
+> ⚠️ **Gateway auth is off by default.** A bare `aa-gateway` boots with
+> `AuthMode::Off` on its REST/admin surface — the zero-config `aasm status`
+> path (and any other REST/admin route) is served with no credential until an
+> operator explicitly opts in with `AA_GATEWAY_AUTH=on` and a valid
+> `AA_JWT_SECRET`. This is unrelated to the gRPC agent-plane's
+> credential-token interceptor below, which is always on. `aa-api` (the
+> dashboard API) defaults auth **on**; the gateway is the off-by-default
+> surface. See [Open core boundary](open-core-boundary.md) for how this
+> pairs with the self-host posture.
+
 ### SDK to gateway (gRPC)
 
 ```mermaid
