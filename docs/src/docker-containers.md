@@ -35,10 +35,13 @@ provenance** (see [Provenance & verification](#provenance--verification)).
 > (the egress-interception proxy) are Apache-2.0 crates in the
 > [`agent-assembly`](https://github.com/ai-agent-assembly/agent-assembly)
 > repository but have **no published container image** — do not expect to
-> `docker pull` them. The REST health surface (`/api/v1/health`) is served **by
-> the gateway in local mode**, not by a separately runnable `aa-api` container
-> (see [Self-Host Observability](self-host-observability.md)). To run `aa-proxy`,
-> build it from source (`aa-proxy/Dockerfile`).
+> `docker pull` them. There is no separately runnable `aa-api` container: the
+> REST surface (`/api/v1/health`) is only exposed when the gateway is launched
+> in **local mode** (`--mode local`), a single-process dev topology **not** used
+> by the gateway + runtime container stack on this page — that stack runs the
+> gateway in its default **legacy gRPC mode**, which serves gRPC only on `:50051`
+> and no HTTP (see [Self-Host Observability](self-host-observability.md)). To run
+> `aa-proxy`, build it from source (`aa-proxy/Dockerfile`).
 
 ---
 
@@ -134,7 +137,7 @@ docker run --rm \
 | Component | Probe | Endpoint |
 |---|---|---|
 | `aa-runtime` | liveness / readiness / metrics | `GET /health`, `GET /ready`, `GET /metrics` on `:8080` |
-| `aa-gateway` | HTTP liveness | `GET /healthz` |
+| `aa-gateway` | TCP liveness | TCP connect to the gRPC port `:50051` |
 
 ```bash
 curl -fsS http://localhost:8080/ready       # runtime readiness -> "ready"
@@ -142,13 +145,15 @@ curl -fsS http://localhost:8080/health      # runtime liveness (JSON)
 curl -fsS http://localhost:8080/metrics     # Prometheus scrape target
 ```
 
-> **Probing the gateway.** The `aa-gateway` image is **distroless** (no shell,
-> no `curl`/`wget` inside the container), so a Compose `healthcheck: ["CMD-SHELL",
-> …]` cannot run *inside* it — probe it **from the host** instead (poll HTTP
-> `/healthz`, or TCP-probe the gRPC port `:50051`). A standard gRPC
-> `grpc.health.v1.Health` service on `:50051` is being added
-> (AAASM-4759); until it ships, use the HTTP `/healthz` liveness probe and a
-> TCP-level check of `:50051`.
+> **Probing the gateway.** As launched here (`--policy … --listen 0.0.0.0:50051`,
+> no `--mode`), the gateway runs in **legacy gRPC mode**: it serves gRPC only on
+> `:50051` and exposes **no HTTP health endpoint** — there is no `/healthz` to
+> curl on this container. On top of that the image is **distroless** (no shell,
+> no `curl`/`wget` inside), so a Compose `healthcheck: ["CMD-SHELL", …]` cannot
+> run *inside* it either. Probe it **from the host with a TCP connect** to the
+> gRPC port `:50051` instead. A standard gRPC `grpc.health.v1.Health` service on
+> `:50051` is being added (AAASM-4759); until it ships, a TCP-level check of
+> `:50051` is the gateway liveness signal.
 
 See [Self-Host Observability](self-host-observability.md) for the full health,
 readiness, and Prometheus-metrics surface, including the baseline metric set.
@@ -383,4 +388,4 @@ you can self-host and what the SaaS adds.
 
 ---
 
-*Last reviewed: 2026-07-17 · AI Agent Assembly Team*
+*Last reviewed: 2026-07-18 · AI Agent Assembly Team*
