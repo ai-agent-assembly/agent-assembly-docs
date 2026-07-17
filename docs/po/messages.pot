@@ -6157,11 +6157,11 @@ msgstr ""
 
 #: src/troubleshooting.md:7
 msgid ""
-"Because AI Agent Assembly is composed of four independently versioned "
-"programs (core plus three SDKs), most concrete runtime symptoms are covered "
-"in the owning component's own troubleshooting section. This page routes you "
-"to the right one and lists cross-cutting issues that don't belong to a "
-"single component."
+"Because AI Agent Assembly is composed of five independently versioned "
+"programs (core, three SDKs, and Arena), most concrete runtime symptoms are "
+"covered in the owning component's own troubleshooting section. This page "
+"routes you to the right one and lists cross-cutting issues that don't "
+"belong to a single component."
 msgstr ""
 
 #: src/troubleshooting.md:13
