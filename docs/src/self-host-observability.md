@@ -8,13 +8,19 @@ This page is for **operators and SREs running the limited-function OSS stack** �
 
 ## What the stack exposes
 
-The self-hostable stack runs **two** binaries with a published container image — `aa-runtime` and `aa-gateway` (see [Docker & Containers](docker-containers.md)) — and they expose HTTP surfaces on distinct paths, so do not assume one path works everywhere. The REST `/api/v1/health` surface is **not** a separately runnable component: it is served **by the gateway in local mode** (there is no published, separately runnable `aa-api` container).
+The self-hostable stack runs **two** binaries with a published container image — `aa-runtime` and `aa-gateway` (see [Docker & Containers](docker-containers.md)). They do **not** expose the same surface: only `aa-runtime` serves HTTP health/metrics (on `:8080`). As launched in the [container topology](docker-containers.md#the-governed-topology) (`--policy … --listen 0.0.0.0:50051`, no `--mode`), the gateway runs in **legacy gRPC mode** and serves **gRPC only on `:50051`** — it exposes **no HTTP `/healthz` and no `/api/v1/health`**. Those HTTP surfaces exist only when the gateway is started in a different mode: `/healthz` in local or remote mode, and `/api/v1/health` in local mode only (`--mode local`, a single-process dev topology this container stack does not use, and which has no separately runnable `aa-api` container).
 
 | Component | Surface | Default endpoint(s) | Purpose |
 |---|---|---|---|
 | **`aa-runtime`** | Health + metrics HTTP server | `/health`, `/ready`, `/metrics` on `AA_METRICS_ADDR` (default `0.0.0.0:8080`) | Liveness, readiness, and the Prometheus scrape target |
-| **`aa-gateway`** | Liveness probe | `/healthz` | Process-liveness for the gateway (local and remote modes) |
-| **`aa-gateway`** (local-mode REST) | Health check | `/api/v1/health` | REST API health, including per-subsystem checks — mounted by the gateway in local mode, **not** a separate `aa-api` container |
+| **`aa-gateway`** (legacy gRPC mode — the container topology) | TCP liveness | gRPC port `:50051` | Process-liveness via a TCP connect; no HTTP health endpoint is served in this mode (`grpc.health.v1.Health` tracked in AAASM-4759) |
+
+The gateway's HTTP `/healthz` and `/api/v1/health` surfaces are **not** part of the container topology on this page — they appear only when the gateway is launched in a non-default mode, summarized below:
+
+| Surface | Where it exists | Default endpoint |
+|---|---|---|
+| `/healthz` | gateway in **local** or **remote** mode | `/healthz` |
+| `/api/v1/health` | gateway in **local** mode only (`--mode local`) | `/api/v1/health` |
 
 The rest of this page covers each surface and gives copy-paste probe and scrape examples.
 
@@ -37,28 +43,26 @@ $ curl -fsS http://localhost:8080/ready
 ready
 ```
 
-### `aa-gateway` — `/healthz`
+### `aa-gateway` — TCP liveness on `:50051`
 
-The gateway exposes a process-liveness probe at **`GET /healthz`** in both of its run modes. It returns `200 OK` with a small JSON body as long as the gateway is responding to HTTP:
-
-- **local mode** reports `mode: "local"` with SQLite-backed storage (local mode also mounts `/api/v1/health`).
-- **remote mode** reports `mode: "remote"` with `postgres` or in-memory storage depending on how it is configured.
+In the [container topology](docker-containers.md#the-governed-topology) the gateway runs in **legacy gRPC mode** (`--policy … --listen 0.0.0.0:50051`, no `--mode`). In that mode it serves gRPC only and exposes **no HTTP health endpoint** — there is no `/healthz` to curl. Gate its liveness with a **TCP connect to the gRPC port `:50051`** from the host (the `aa-gateway` image is distroless, so an in-container `CMD-SHELL` probe cannot run either — see [Docker & Containers](docker-containers.md#health-checking)).
 
 ```console
-$ curl -fsS http://localhost:<gateway-port>/healthz
-{"mode":"local","version":"...","storage":"sqlite","uptime_secs":...}
+# TCP-level liveness — succeeds once the gateway is accepting gRPC connections.
+$ nc -z localhost 50051 && echo "gateway up"
+gateway up
 ```
 
-The gateway's HTTP port depends on how you launch it in the Docker Compose example — check your compose file's port mapping rather than assuming a fixed value.
+A standard gRPC `grpc.health.v1.Health` service on `:50051` is being added (AAASM-4759); until it ships, the TCP check above is the gateway liveness signal for the container topology.
 
-### `/api/v1/health` — the gateway's local-mode REST health
+### HTTP health (`/healthz`, `/api/v1/health`) — local/remote mode only
 
-When the gateway runs in **local mode** it also mounts the REST API surface and exposes a health check at **`GET /api/v1/health`** (all API routes are nested under `/api/v1/`). This is served by the **same `aa-gateway` container** — there is no separate `aa-api` process or image to run. It returns `200 OK` when every subsystem check passes, or `503 Service Unavailable` when any is degraded. The JSON body includes the build `version`, `api_version`, uptime, and a `checks` map with per-subsystem status for the policy engine, registry, audit, and alerts.
+The gateway *does* serve HTTP health endpoints, but **only when launched in a non-default mode** — not in the legacy-gRPC container topology on this page:
 
-```console
-$ curl -fsS http://localhost:<api-port>/api/v1/health
-{"status":"ok","version":"...","api_version":"v1","checks":{"policy_engine":"ok", ...}}
-```
+- **`GET /healthz`** — process-liveness in **local** and **remote** mode. Returns `200 OK` with a small JSON body (e.g. `{"mode":"local","version":"...","storage":"sqlite","uptime_secs":...}`).
+- **`GET /api/v1/health`** — REST API health in **local** mode only (`--mode local`), mounted by the **same `aa-gateway` process** (there is no separate `aa-api` container). Returns `200 OK` when every subsystem check passes, or `503 Service Unavailable` when any is degraded; the JSON body includes the build `version`, `api_version`, uptime, and a `checks` map for the policy engine, registry, audit, and alerts.
+
+Local mode is a single-process dev topology, not the gateway + runtime container stack documented in [Docker & Containers](docker-containers.md); its HTTP port comes from that mode's own configuration rather than the `--listen` gRPC address.
 
 ---
 
@@ -112,7 +116,7 @@ scrape_configs:
 
 Replace `<runtime-host>` with the address where the runtime is reachable (for the Docker Compose example, the runtime service's name/port on the compose network). If you override `AA_METRICS_ADDR`, update the target port to match.
 
-For a liveness/health check outside Prometheus, probe `/health` (runtime), `/healthz` (gateway), or `/api/v1/health` (gateway local-mode REST) as shown above — each returns a non-`200` status when unhealthy, so `curl -f` is enough to gate a health check.
+For a liveness/health check outside Prometheus, probe the runtime's `/health` over HTTP (`curl -f` gates on its non-`200` status) and check the gateway with a TCP connect to `:50051` (`nc -z`) — in the container topology the gateway serves no HTTP health endpoint. The HTTP `/healthz` / `/api/v1/health` probes apply only if you run the gateway in local/remote mode, as noted above.
 
 ---
 
@@ -122,7 +126,8 @@ These endpoints live in the Apache-2.0 crates in the [`agent-assembly`](https://
 
 - `aa-runtime/src/config.rs` — `AA_METRICS_ADDR` and its default.
 - `aa-runtime/src/runtime.rs` and `aa-runtime/src/health/` — the health/metrics server and the baseline metrics.
-- `aa-gateway/src/routes/healthz.rs` — the `/healthz` liveness probe (local and remote modes).
+- `aa-gateway/src/main.rs` — the mode resolver (`resolve_mode`); the default is `legacy-grpc`, which runs `serve_tcp` (gRPC only, no HTTP health) unless `--mode`/`AA_MODE` selects `local` or `remote`.
+- `aa-gateway/src/routes/healthz.rs` — the `/healthz` liveness probe (local and remote modes only).
 - `aa-api/src/routes/health.rs` — the `/api/v1/health` check (mounted by the gateway in local mode; there is no separately runnable `aa-api` container).
 
 ---
