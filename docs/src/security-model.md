@@ -11,7 +11,7 @@ AI Agent Assembly groups its security controls into five named layers. Each laye
 | Layer | Name | What it does |
 |---|---|---|
 | 1 | **Boundary** | Network perimeter: sidecar proxy (`aa-proxy`) enforces egress policy; eBPF sensor (`aa-ebpf`) catches kernel-level bypass attempts |
-| 2 | **Identity** | Agent and user authentication: JWT-based agent identity issued by the gateway; operator authentication via SAML 2.0 / OIDC SSO |
+| 2 | **Identity** | Agent and user authentication: the gRPC agent plane is authenticated by a random per-agent credential token (UUID, constant-time compare, no expiry) minted after a one-time Ed25519 possession-proof at registration; operator authentication via SAML 2.0 / OIDC SSO. A separate HMAC-SHA256 JWT (24h TTL) protects the REST/admin surface only, and that surface's auth is **off by default** — see the callout in [Authentication flow](#authentication-flow) below |
 | 3 | **Policy** | Runtime governance: YAML/JSON policy rules evaluated by the gateway policy engine before every agent action |
 | 4 | **Vault** | Secret and credential management: AES-256-GCM encryption at rest for stored secrets; Ed25519-signed tokens for inter-component trust |
 | 5 | **Telemetry** | Audit and observability: append-only event log for every agent action; Slack/webhook connectors for real-time alerting on policy violations |
@@ -26,8 +26,8 @@ The table below maps each STRIDE category to the five primary components of AI A
 
 | Component | **S**poofing | **T**ampering | **R**epudiation | **I**nfo Disclosure | **D**enial of Service | **E**levation of Privilege |
 |---|---|---|---|---|---|---|
-| **Language SDK** | Ed25519-signed agent tokens prevent impersonation | SDK integrity verified by Cargo/npm/PyPI package hash | Every call logged with agent ID and timestamp | SDK communicates over mTLS; secrets never logged | Rate limiting enforced by gateway budget tracker | Policy engine enforces agent scope; no ambient privilege |
-| **Gateway (aa-gateway)** | JWT validation on all gRPC connections | Input validation on all RPCs; schema-enforced policy rules | Append-only audit log with tamper-evident signatures | Internal-only gRPC endpoint; never exposed directly | Per-team budget caps block runaway agent spending | RBAC on all administrative API endpoints |
+| **Language SDK** | One-time Ed25519 possession-proof at registration, then a random per-agent credential token (constant-time compare) on every call | SDK integrity verified by Cargo/npm/PyPI package hash | Every call logged with agent ID and timestamp | gRPC transport is plaintext by default — the app-layer credential-token interceptor authenticates every call; mTLS is an optional, unwired hardening layer; secrets never logged | Rate limiting enforced by gateway budget tracker | Policy engine enforces agent scope; no ambient privilege |
+| **Gateway (aa-gateway)** | Credential-token interceptor validates every agent-plane gRPC call (fail-closed on approval/audit/topology/secrets); REST/admin surface can opt into JWT validation, off by default | Input validation on all RPCs; schema-enforced policy rules | Append-only audit log with tamper-evident signatures | Internal-only gRPC endpoint; never exposed directly | Per-team budget caps block runaway agent spending | RBAC on all administrative API endpoints |
 | **Sidecar Proxy (aa-proxy)** | Per-host CA pinning prevents MitM spoofing by agents | TLS termination with certificate validation on every upstream | All intercepted requests logged by proxy before forwarding | Proxy does not log request/response bodies by default | Connection pool limits per agent; circuit breaker on upstream failure | Proxy runs as unprivileged user; no write access to host filesystem |
 | **eBPF Sensor (aa-ebpf)** | eBPF program loaded only by privileged system service | BPF verifier rejects unsafe programs at load time | Kernel event timestamps are monotonic; cannot be retroactively altered | eBPF only reads SSL buffers; no access to unrelated memory regions | eBPF programs have bounded execution; verifier enforces loop limits | Loaded via CAP_BPF only; capability is dropped after program load |
 | **REST API (aa-api)** | SAML/OIDC token validation on every request | OpenAPI schema validation rejects malformed inputs | All mutating API calls logged with actor identity | HTTPS-only; HSTS enforced; no sensitive data in query strings | Rate limiting per IP and per tenant; DDoS mitigation via upstream load balancer | Tenant isolation enforced at API layer; cross-tenant access rejected |
@@ -40,16 +40,28 @@ The table below maps each STRIDE category to the five primary components of AI A
 
 | Primitive | Algorithm | Key length | Usage | Rotation cadence (NIST SP 800-57) |
 |---|---|---|---|---|
-| Agent signing key | Ed25519 | 256-bit | Signs agent identity tokens issued by the gateway | Every 90 days or on compromise |
+| Agent registration proof | Ed25519 | 256-bit | One-time possession-proof signature over a server-issued nonce, verified at `RegisterAgent`; not a reusable bearer credential | Agent-supplied keypair; not gateway-managed |
+| Agent credential token | UUID v4 (CSPRNG) | 122-bit random | Bearer credential presented on every agent-plane gRPC call after registration; validated with a constant-time compare | No expiry — replaced only on re-registration |
+| REST/admin session token | JWT (HMAC-SHA256) | 256-bit | Authenticates REST/admin API callers; only issued when gateway auth is explicitly enabled (off by default) | 24h token TTL |
 | Vault encryption | AES-256-GCM | 256-bit | Encrypts secrets and credentials at rest | Every 1 year or on compromise |
 | Callback / webhook signature | HMAC-SHA256 | 256-bit | Signs outbound webhook payloads so receivers can verify authenticity | Every 90 days or on rotation of webhook secret |
-| TLS (transport) | TLS 1.3 | ECDHE-256 | All inter-component and external communication | Certificate: every 90 days (auto-renewed) |
+| TLS (transport) | TLS 1.3 | ECDHE-256 | Operator/external HTTPS traffic; the gRPC agent-plane transport is plaintext by default (see the callout below) | Certificate: every 90 days (auto-renewed) |
 
 All keys are generated using a CSPRNG. No MD5, SHA-1, or DES primitives are used anywhere in the stack.
 
 ---
 
 ## Authentication flow
+
+> ⚠️ **Gateway auth is off by default.** A bare `aa-gateway` boots with
+> `AuthMode::Off` on its REST/admin surface — the zero-config `aasm status`
+> path (and any other REST/admin route) is served with no credential until an
+> operator explicitly opts in with `AA_GATEWAY_AUTH=on` and a valid
+> `AA_JWT_SECRET`. This is unrelated to the gRPC agent-plane's
+> credential-token interceptor below, which is always on. `aa-api` (the
+> dashboard API) defaults auth **on**; the gateway is the off-by-default
+> surface. See [Open core boundary](open-core-boundary.md) for how this
+> pairs with the self-host posture.
 
 ### SDK to gateway (gRPC)
 
@@ -59,12 +71,15 @@ sequenceDiagram
   participant SDK as Language SDK
   participant GW as aa-gateway
 
-  SDK->>GW: RegisterAgent(agent_id, public_key, metadata)
-  GW-->>SDK: AgentToken (Ed25519-signed JWT, TTL=1h)
-  Note over SDK,GW: All subsequent calls carry the AgentToken in gRPC metadata
+  SDK->>GW: RequestChallenge(agent_id, public_key)
+  GW-->>SDK: nonce (single-use, server-random)
+  SDK->>GW: Register(agent_id, public_key, possession_proof = sign(nonce))
+  GW->>GW: Verify Ed25519 signature over nonce (one-time possession proof)
+  GW-->>SDK: credential_token (random UUID, no expiry)
+  Note over SDK,GW: All subsequent calls carry credential_token in gRPC metadata (x-aa-credential-token or Authorization: Bearer)
 
-  SDK->>GW: CheckPolicy(event) [+ AgentToken]
-  GW->>GW: Verify Ed25519 signature, check TTL
+  SDK->>GW: CheckPolicy(event) [+ credential_token]
+  GW->>GW: Constant-time compare against stored token (no TTL — tokens do not expire)
   GW-->>SDK: PolicyDecision
 ```
 
@@ -139,4 +154,4 @@ sequenceDiagram
 
 ---
 
-*Last reviewed: 2026-06-11 — AI Agent Assembly Team*
+*Last reviewed: 2026-07-17 — AI Agent Assembly Team*
