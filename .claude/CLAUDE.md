@@ -1,4 +1,4 @@
-# CLAUDE.md — agent-assembly-docs
+# CLAUDE.md — docs
 
 Guidance for Claude Code (and humans) working in this repository. This file holds
 **repo-specific** context only; universal engineering policy lives in the global
