@@ -22,6 +22,7 @@
 
 # Operations
 
+- [Docker & Containers](docker-containers.md)
 - [Self-Host Observability](self-host-observability.md)
 
 # Reference
