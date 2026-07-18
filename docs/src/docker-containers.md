@@ -280,7 +280,7 @@ services:
       AA_AGENT_ID: "my-agent-001"                     # MUST match aa-runtime
       AA_RUNTIME_SOCKET: "/tmp/aa-runtime-my-agent-001.sock"
       AA_GATEWAY_ENDPOINT: "http://aa-gateway:50051"  # native client (registration)
-      AA_GATEWAY_URL: "http://aa-gateway:50051"       # SDK gateway handle
+      AA_GATEWAY_URL: "http://aa-gateway:7391"        # SDK gateway handle (REST control plane)
     volumes:
       - aa-runtime-socket:/tmp                          # same socket the runtime created
 
