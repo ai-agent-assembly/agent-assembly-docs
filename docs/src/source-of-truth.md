@@ -60,7 +60,8 @@ Every area below is tagged with one visibility label and one maturity label.
 
 ## Why some areas are private or planned
 
-AI Agent Assembly is **open core, SaaS-only**. The enforcement path — every
+AI Agent Assembly is **open core — limited-function self-host (Docker Compose),
+full-function SaaS**. The enforcement path — every
 interception layer, the policy engine, the SDK shims, and the CLI — is open
 source and public. The commercial control plane (Cloud) and the enterprise
 operations features (Enterprise) are delivered as a managed SaaS and live in
