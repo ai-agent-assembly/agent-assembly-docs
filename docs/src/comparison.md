@@ -46,7 +46,7 @@ Legend: ✓ = full support · partial = limited or gated behind a paid tier · �
 | SAML 2.0 / OIDC SSO | ✓ 🚧 | partial (Enterprise) | partial (Enterprise) | partial (Enterprise) | ✓ |
 | SCIM user provisioning | ✓ 🚧 | ✗ | ✗ | ✗ | partial |
 | **Approval workflows** | | | | | |
-| Human-in-the-loop approval gates | partial (policy deny + alerting) | ✗ | ✗ | ✗ | ✓ |
+| Human-in-the-loop approval gates | partial (policy deny; alerting 🚧) | ✗ | ✗ | ✗ | ✓ |
 | Automated approval routing | ✗ | ✗ | ✗ | ✗ | ✓ |
 | **Cost analytics** | | | | | |
 | Per-team token / cost budgets (enforced) | ✓ | partial (tracking only) | ✓ (tracking + alerts) | partial (tracking only) | ✗ |
@@ -64,7 +64,7 @@ Legend: ✓ = full support · partial = limited or gated behind a paid tier · �
 These are capabilities competitors offer that AI Agent Assembly does not yet fully deliver.
 
 1. **Vault-backed secrets management** — Pillar Security provides first-class secrets vault integration with automatic secret rotation and injection. AAASM currently supports secret-pattern detection via regex policies but does not integrate with HashiCorp Vault or AWS Secrets Manager.
-2. **Automated human-in-the-loop approval workflows** — Pillar Security provides structured approval routing with escalation chains. AAASM can deny and alert but does not yet route decisions to a named approver queue.
+2. **Automated human-in-the-loop approval workflows** — Pillar Security provides structured approval routing with escalation chains. AAASM can deny today (alert emission is planned, not yet shipped — see 🚧) and does not yet route decisions to a named approver queue.
 3. **Full-function self-hosted deployment** — Langfuse, Opik, and Pillar Security offer a fully self-hostable product. AAASM self-hosting is limited-function today: a limited stack runs locally from the Apache-2.0 crates (Docker Compose) for evaluation and development, while the complete feature set is delivered via SaaS (see [Open Core Boundary](open-core-boundary.md)).
 4. **Evaluation frameworks and LLM-as-judge scoring** — Langfuse and Opik provide built-in evaluation pipelines, dataset management, and automated LLM-as-judge scoring for output quality. AAASM's policy engine operates on patterns and metadata, not semantic quality.
 5. **Prompt management and versioning** — Langfuse provides a managed prompt registry with version history and A/B comparison. AAASM does not include a prompt registry.
