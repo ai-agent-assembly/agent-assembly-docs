@@ -105,5 +105,7 @@ from the three *interception points* (SDK, proxy, eBPF), which all live inside
 the Boundary layer. See the [Security model](security-model.md).
 
 **Audit log**
-: The append-only, tamper-evident record of every agent action (policy checks,
-events, budget debits).
+: The append-only record of every agent action (policy checks, events, budget
+debits). The open-source build ships a *basic* audit log; the *tamper-evident
+signed* audit log (HMAC-SHA256) is an Enterprise capability — see
+[Open Core Boundary](open-core-boundary.md).
