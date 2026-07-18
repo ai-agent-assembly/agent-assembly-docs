@@ -154,7 +154,17 @@ Scans agent inputs and outputs for PII or credential patterns using regex.
 | Field | Type | Required | Description |
 |---|---|---|---|
 | `data.sensitive_patterns` | list of regex strings | No | RE2-compatible regex patterns. A match triggers `credential_action`. Invalid regex is rejected at validation time. |
-| `data.credential_action` | `"block"` \| `"redact_only"` \| `"alert_only"` \| `"alert_and_redact"` | No | Action taken when a `sensitive_patterns` match is found. `redact_only` (default): redact the match and forward the request. `block`: block the agent action entirely. `alert_only`: alert without redacting. `alert_and_redact`: alert and redact. |
+| `data.credential_action` | `"block"` \| `"redact_only"` \| `"alert_only"` \| `"alert_and_redact"` | No | Action taken when a `sensitive_patterns` match is found. `redact_only` (default): redact the match and forward the request. `block`: block the agent action entirely. `alert_only`: **forward the match UNREDACTED** and record the finding. `alert_and_redact`: redact the match and forward. See the alerting caveat below. |
+
+> **Alerting is not yet emitted (pending AAASM-1545).** The `alert_only` and
+> `alert_and_redact` modes are named for their intended behaviour, but the alert
+> side-effect is **not currently wired** — matches are logged, no alert is
+> delivered. Redaction *does* work: `redact_only` and `alert_and_redact` both
+> redact the match before forwarding. **`alert_only` is the only mode that
+> forwards the credential unredacted** — until alerting ships it provides no
+> alert and leaks the raw secret downstream. For a fail-safe posture, use
+> `redact_only` (the default) or `alert_and_redact`; avoid `alert_only` unless
+> you specifically intend to forward the unredacted payload.
 
 ```yaml
 data:
