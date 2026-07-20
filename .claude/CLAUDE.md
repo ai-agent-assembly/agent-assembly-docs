@@ -108,7 +108,7 @@ and no lefthook in this repo; the only local gate is `mdbook build` + the matrix
 
 ## Project policy
 
-- **JIRA:** project AAASM; set **Component** (`customfield_10041`) to the repo
+- **JIRA:** project AAASM; set the native **Components** field to the repo
   (`ai-agent-assembly/docs`); Team (`customfield_10001`) = Pioneer.
   Epic → Story → Subtask (one Subtask ≈ one commit) + a `Verify …` subtask per Story.
 - **Self-host is limited-function only** (revised policy). Sample infra configs and
