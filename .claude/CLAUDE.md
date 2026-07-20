@@ -6,7 +6,7 @@ config. When a fact here duplicates `README.md`, `docs/book.toml`, or the
 `aggregate.yml` workflow, treat those as the source of truth and update them, not just
 this file.
 
-Org-wide baseline: https://github.com/ai-agent-assembly/.github/blob/main/CLAUDE.md
+Org-wide baseline: https://github.com/ai-agent-assembly/.github/blob/master/CLAUDE.md
 (org-universal conventions this file doesn't repeat).
 
 ## What this repo is
