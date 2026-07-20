@@ -6,7 +6,7 @@ config. When a fact here duplicates `README.md`, `docs/book.toml`, or the
 `aggregate.yml` workflow, treat those as the source of truth and update them, not just
 this file.
 
-Org-wide baseline: https://github.com/ai-agent-assembly/.github/blob/main/CLAUDE.md
+Org-wide baseline: https://github.com/ai-agent-assembly/.github/blob/master/CLAUDE.md
 (org-universal conventions this file doesn't repeat).
 
 ## What this repo is
@@ -108,7 +108,7 @@ and no lefthook in this repo; the only local gate is `mdbook build` + the matrix
 
 ## Project policy
 
-- **JIRA:** project AAASM; set **Component** (`customfield_10041`) to the repo
+- **JIRA:** project AAASM; set the native **Components** field to the repo
   (`ai-agent-assembly/docs`); Team (`customfield_10001`) = Pioneer.
   Epic → Story → Subtask (one Subtask ≈ one commit) + a `Verify …` subtask per Story.
 - **Self-host is limited-function only** (revised policy). Sample infra configs and
