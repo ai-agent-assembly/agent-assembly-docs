@@ -32,7 +32,7 @@
     {
       "name": "node-sdk",
       "repo": "ai-agent-assembly/node-sdk",
-      "ref": "master",
+      "ref": "main",
       "generator": "docusaurus",
       "subpath": "node-sdk",
       "doc_dir": "website",
