@@ -134,6 +134,7 @@ These endpoints live in the Apache-2.0 crates in the [`agent-assembly`](https://
 
 ## Related documentation
 
+- [Observe your agents in the Dashboard](dashboard.md) — the operator web UI on top of these surfaces, with light/dark screenshots of the Fleet and Audit Log views.
 - [Open core boundary](open-core-boundary.md) — what the limited-function OSS stack includes vs. the SaaS feature set.
 - [Cloud Deployment](cloud-deployment.md) — the managed SaaS platform, its SLA tiers, and on-call (SaaS only).
 - [Security model](security-model.md) — the Telemetry layer and the broader defense-in-depth posture.
